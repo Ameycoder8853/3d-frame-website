@@ -13,11 +13,34 @@ async function ensureFirebase() {
   }
   
   try {
-    const res = await fetch('/api/firebase-config');
-    if (!res.ok) {
-      throw new Error(`Failed to fetch Firebase configuration from server: ${res.statusText}`);
+    let firebaseConfig: any = null;
+    
+    // Check if client-side Vite environment variables are defined (e.g. on custom deployment like Vercel)
+    const metaEnv = (import.meta as any).env || {};
+    const vApiKey = metaEnv.VITE_FIREBASE_API_KEY;
+    const vProjectId = metaEnv.VITE_FIREBASE_PROJECT_ID;
+    
+    if (vApiKey && vProjectId) {
+      // Initialize completely client-side to prevent 404 on API endpoints in static hosting
+      firebaseConfig = {
+        apiKey: vApiKey,
+        projectId: vProjectId,
+        authDomain: metaEnv.VITE_FIREBASE_AUTH_DOMAIN || `${vProjectId}.firebaseapp.com`,
+        appId: metaEnv.VITE_FIREBASE_APP_ID || "",
+        storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || `${vProjectId}.appspot.com`,
+        messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+        measurementId: metaEnv.VITE_FIREBASE_MEASUREMENT_ID || "",
+        firestoreDatabaseId: metaEnv.VITE_FIREBASE_FIRESTORE_DATABASE_ID || "(default)"
+      };
+      console.log("Firebase initialized securely from VITE_ environment variables.");
+    } else {
+      // Fallback: Fetch configuration from Express server proxy endpoint
+      const res = await fetch('/api/firebase-config');
+      if (!res.ok) {
+        throw new Error(`Failed to fetch Firebase configuration from server: ${res.statusText}`);
+      }
+      firebaseConfig = await res.json();
     }
-    const firebaseConfig = await res.json();
     
     app = initializeApp(firebaseConfig);
     db = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
