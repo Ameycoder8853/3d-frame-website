@@ -426,7 +426,7 @@ function FairyLightsChain({ outerW, outerH, rimDepth, ledColor, isMobile }: { ou
             <meshStandardMaterial 
               color={ledColor} 
               emissive={ledColor} 
-              emissiveIntensity={3.5} 
+              emissiveIntensity={2.0} 
               roughness={0.1}
               metalness={0.1}
             />
@@ -434,7 +434,7 @@ function FairyLightsChain({ outerW, outerH, rimDepth, ledColor, isMobile }: { ou
           {lightFrequency > 0 && i % lightFrequency === 0 && (
             <pointLight
               color={ledColor}
-              intensity={0.6}
+              intensity={0.35}
               distance={1.4}
               decay={2}
               castShadow={false}
@@ -817,19 +817,19 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
           antialias: !isMobile, 
           precision: isMobile ? 'mediump' : 'highp',
           toneMapping: THREE.ACESFilmicToneMapping, 
-          toneMappingExposure: 1.1,
+          toneMappingExposure: 0.85,
           alpha: true 
         }}
         className="z-10 relative"
       >
         {/* Direct Ambient baseline lighting fill */}
-        <ambientLight intensity={0.4} />
+        <ambientLight intensity={0.22} />
         
         {/* Gallery Spotlighting casting elegant hard shadows */}
         <directionalLight 
           castShadow={!isMobile} 
           position={[3.0, 4.5, 3.5]} 
-          intensity={1.25} 
+          intensity={0.8} 
           shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
           shadow-bias={-0.00015}
         />
@@ -837,13 +837,13 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         {/* Beautiful subtle filling flash from bottom-left room bounces */}
         <directionalLight 
           position={[-3, -3, 2]} 
-          intensity={0.25} 
+          intensity={0.12} 
         />
 
         {/* Front-facing head-on soft key fill light specifically to keep text elements, titles, and nickname plates illuminated at any angle */}
         <directionalLight 
           position={[0, 0, 5.0]} 
-          intensity={0.45} 
+          intensity={0.2} 
           castShadow={false}
         />
 
@@ -892,7 +892,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
           <Bloom 
             luminanceThreshold={0.95} 
             luminanceSmoothing={0.85} 
-            intensity={1.3} 
+            intensity={0.90} 
             mipmapBlur
           />
         </EffectComposer>

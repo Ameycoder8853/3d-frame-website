@@ -17,17 +17,8 @@ export default function SceneHybrid({ photoDataUrl, config }: SceneHybridProps) 
       if (savedPreference === '2d' || savedPreference === '3d') {
         return savedPreference;
       }
-      const ua = navigator.userAgent || '';
-      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-      
-      let isSlowConn = false;
-      const conn = (navigator as any).connection;
-      if (conn) {
-        if (conn.saveData || ['slow-2g', '2g', '3g'].includes(conn.effectiveType)) {
-          isSlowConn = true;
-        }
-      }
-      return isMobileDevice || isSlowConn ? '2d' : '3d';
+      // Guarantee the high-end 3D WebGL diorama is active by default on load
+      return '3d';
     }
     return '3d';
   });
