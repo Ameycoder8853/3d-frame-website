@@ -529,8 +529,8 @@ async function startServer() {
       if (fs.existsSync(configPath)) {
         const configRaw = fs.readFileSync(configPath, 'utf8');
         const firebaseConfig = JSON.parse(configRaw);
-        // Inject GEMINI_API_KEY from environment to fix the leak and resolve security warnings
-        firebaseConfig.apiKey = process.env.GEMINI_API_KEY || firebaseConfig.apiKey || "";
+        // Inject FIREBASE_API_KEY or GEMINI_API_KEY from environment to fix the leak and resolve security warnings
+        firebaseConfig.apiKey = process.env.FIREBASE_API_KEY || process.env.GEMINI_API_KEY || "";
         res.json(firebaseConfig);
       } else {
         res.status(404).json({ error: 'firebase-applet-config.json not found' });
