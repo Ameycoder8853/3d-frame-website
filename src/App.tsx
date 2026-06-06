@@ -4,8 +4,7 @@ import ShareSocial from './components/ShareSocial';
 import { FrameConfig } from './types';
 import { saveFrameConfig, loadFrameConfig } from './firebase';
 import { generateProceduralFrame } from './utils/procedural';
-
-const Scene3D = React.lazy(() => import('./components/Scene3D'));
+import SceneHybrid from './components/SceneHybrid';
 
 interface WebLog {
   id: string;
@@ -149,7 +148,7 @@ export default function App() {
                      </div>
                    </div>
                  }>
-                   <Scene3D photoDataUrl={photoDataUrl!} config={frameConfig} />
+                   <SceneHybrid photoDataUrl={photoDataUrl!} config={frameConfig} />
                  </Suspense>
 
                  {/* Real Automations Log Panel to display instant feedback */}
