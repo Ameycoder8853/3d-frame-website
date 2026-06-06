@@ -1,14 +1,35 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import firebaseConfig from '../firebase-applet-config.json';
+import { getFirestore, doc, setDoc, getDoc, Firestore } from 'firebase/firestore';
+import { getAuth, Auth } from 'firebase/auth';
 import { FrameConfig } from './types';
 
-const app = initializeApp(firebaseConfig);
-export const db = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
-  ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
-  : getFirestore(app);
-export const auth = getAuth(app);
+let app: any = null;
+let db: Firestore | null = null;
+let auth: Auth | null = null;
+
+async function ensureFirebase() {
+  if (app && db && auth) {
+    return { db, auth };
+  }
+  
+  try {
+    const res = await fetch('/api/firebase-config');
+    if (!res.ok) {
+      throw new Error(`Failed to fetch Firebase configuration from server: ${res.statusText}`);
+    }
+    const firebaseConfig = await res.json();
+    
+    app = initializeApp(firebaseConfig);
+    db = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
+      ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
+      : getFirestore(app);
+    auth = getAuth(app);
+    return { db, auth };
+  } catch (error) {
+    console.error('Error initializing Firebase:', error);
+    throw error;
+  }
+}
 
 export enum OperationType {
   CREATE = 'create',
@@ -36,16 +57,16 @@ export interface FirestoreErrorInfo {
   }
 }
 
-function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): never {
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null, authInstance: Auth | null): never {
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid || null,
-      email: auth.currentUser?.email || null,
-      emailVerified: auth.currentUser?.emailVerified || null,
-      isAnonymous: auth.currentUser?.isAnonymous || null,
-      tenantId: auth.currentUser?.tenantId || null,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+      userId: authInstance?.currentUser?.uid || null,
+      email: authInstance?.currentUser?.email || null,
+      emailVerified: authInstance?.currentUser?.emailVerified || null,
+      isAnonymous: authInstance?.currentUser?.isAnonymous || null,
+      tenantId: authInstance?.currentUser?.tenantId || null,
+      providerInfo: authInstance?.currentUser?.providerData?.map(provider => ({
         providerId: provider.providerId,
         email: provider.email,
       })) || []
@@ -59,22 +80,24 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 
 export async function saveFrameConfig(config: FrameConfig): Promise<void> {
   const path = `frames/${config.id}`;
+  const { db: firestoreDb, auth: authInstance } = await ensureFirebase();
   try {
-    await setDoc(doc(db, 'frames', config.id), config);
+    await setDoc(doc(firestoreDb, 'frames', config.id), config);
   } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
+    handleFirestoreError(error, OperationType.WRITE, path, authInstance);
   }
 }
 
 export async function loadFrameConfig(id: string): Promise<FrameConfig | null> {
   const path = `frames/${id}`;
+  const { db: firestoreDb, auth: authInstance } = await ensureFirebase();
   try {
-    const docSnap = await getDoc(doc(db, 'frames', id));
+    const docSnap = await getDoc(doc(firestoreDb, 'frames', id));
     if (docSnap.exists()) {
       return docSnap.data() as FrameConfig;
     }
   } catch (error) {
-    handleFirestoreError(error, OperationType.GET, path);
+    handleFirestoreError(error, OperationType.GET, path, authInstance);
   }
   return null;
 }

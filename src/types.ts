@@ -60,4 +60,7 @@ export interface FrameConfig {
   peripheral?: string;
   layoutStyle?: 'editorial' | 'collage' | 'minimalist' | 'bento';
   quote?: string;
+  photoRotation?: number;
+  photoFlipV?: boolean;
+  photoFlipH?: boolean;
 }

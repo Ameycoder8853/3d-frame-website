@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 
@@ -517,6 +518,24 @@ async function startServer() {
       // Perfect fallback to ensure amazing user experience instantly
       const fallbackConfig = generateProceduralFrame(occasion, nickname, likes, bgColor, photoBase64, aspectRatio || 1, peripheral || 'standee', layoutStyle, quote);
       res.json(fallbackConfig);
+    }
+  });
+
+  // Safe Firebase configuration proxy endpoint
+  app.get('/api/firebase-config', (req, res) => {
+    try {
+      const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
+      if (fs.existsSync(configPath)) {
+        const configRaw = fs.readFileSync(configPath, 'utf8');
+        const firebaseConfig = JSON.parse(configRaw);
+        // Inject GEMINI_API_KEY from environment to fix the leak and resolve security warnings
+        firebaseConfig.apiKey = process.env.GEMINI_API_KEY || firebaseConfig.apiKey || "";
+        res.json(firebaseConfig);
+      } else {
+        res.status(404).json({ error: 'firebase-applet-config.json not found' });
+      }
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
     }
   });
 

@@ -14,6 +14,20 @@ export default function Scene2D({ photoDataUrl, config }: Scene2DProps) {
   const dragStart = useRef({ x: 0, y: 0 });
   const currentRot = useRef({ x: 6, y: -12 });
 
+  const photoTransform = useMemo(() => {
+    let transformStr = '';
+    if (config.photoRotation) {
+      transformStr += ` rotate(${config.photoRotation}deg)`;
+    }
+    if (config.photoFlipH) {
+      transformStr += ` scaleX(-1)`;
+    }
+    if (config.photoFlipV) {
+      transformStr += ` scaleY(-1)`;
+    }
+    return transformStr.trim();
+  }, [config.photoRotation, config.photoFlipH, config.photoFlipV]);
+
   // Handle Drag/Touch orbiting simulations
   const handleStart = (clientX: number, clientY: number) => {
     setIsDragging(true);
@@ -238,7 +252,8 @@ export default function Scene2D({ photoDataUrl, config }: Scene2DProps) {
                 <img 
                   src={photoDataUrl} 
                   alt="Diorama center" 
-                  className="w-full h-full object-cover select-none pointer-events-none" 
+                  style={{ transform: photoTransform }}
+                  className="w-full h-full object-cover select-none pointer-events-none transition-transform duration-300" 
                   referrerPolicy="no-referrer"
                 />
               ) : (

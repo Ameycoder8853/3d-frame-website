@@ -153,7 +153,63 @@ export default function App() {
                    <SceneHybrid photoDataUrl={photoDataUrl!} config={frameConfig} />
                  </Suspense>
 
-                 {/* Real Automations Log Panel to display instant feedback */}
+                 {/* Dynamic Photo Alignment adjustment panel */}
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <div className="text-left w-full md:w-auto">
+                      <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                        <span>📐</span> Photo Alignment Adjustments
+                      </h4>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        Instantly rotate or flip your photo to orient it perfectly upright in both 2D and 3D views.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFrameConfig(prev => {
+                            if (!prev) return null;
+                            const nextRotation = ((prev.photoRotation ?? 0) + 90) % 360;
+                            addLog('system', `Rotated photo to ${nextRotation}°`);
+                            return { ...prev, photoRotation: nextRotation };
+                          });
+                        }}
+                        className="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all select-none cursor-pointer"
+                      >
+                        🔄 Rotate 90°
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFrameConfig(prev => {
+                            if (!prev) return null;
+                            const nextFlip = !prev.photoFlipV;
+                            addLog('system', `Vertically flipped photo (${nextFlip ? 'active' : 'inactive'})`);
+                            return { ...prev, photoFlipV: nextFlip };
+                          });
+                        }}
+                        className="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all select-none cursor-pointer"
+                      >
+                        ↕️ Flip Vertical
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFrameConfig(prev => {
+                            if (!prev) return null;
+                            const nextFlip = !prev.photoFlipH;
+                            addLog('system', `Horizontally flipped photo (${nextFlip ? 'active' : 'inactive'})`);
+                            return { ...prev, photoFlipH: nextFlip };
+                          });
+                        }}
+                        className="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all select-none cursor-pointer"
+                      >
+                        ↔️ Flip Horizontal
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Real Automations Log Panel to display instant feedback */}
                  <div className="bg-zinc-900 text-zinc-300 p-5 rounded-2xl shadow-xl font-mono text-xs border border-zinc-800">
                    <div className="flex justify-between items-center border-b border-zinc-800 pb-3 mb-3">
                      <span className="font-bold text-[10px] text-zinc-400 uppercase tracking-widest flex items-center gap-2">

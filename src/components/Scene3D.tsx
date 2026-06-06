@@ -68,7 +68,7 @@ function useSafeTexture(url: string | null) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.flipY = false; // Set to false to render the ImageBitmap correctly upright
+        tex.flipY = true; // Use standard flipY to correctly orient uploaded photos
         
         // Skip heavy synchronous CPU-bound mipmap calculations to achieve instant load
         tex.generateMipmaps = false; 
@@ -568,6 +568,22 @@ function Rose3D({ color, position, scale, isMobile }: { color: string, position:
 function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataUrl: string, config: FrameConfig, isMobile: boolean, isInitialized: boolean }) {
   const photoTexture = useSafeTexture(photoDataUrl);
 
+  useEffect(() => {
+    if (photoTexture) {
+      photoTexture.center.set(0.5, 0.5);
+      const rot = config.photoRotation ?? 0;
+      photoTexture.rotation = (rot * Math.PI) / 180;
+      
+      const scaleX = config.photoFlipH ? -1 : 1;
+      const scaleY = config.photoFlipV ? -1 : 1;
+      photoTexture.repeat.set(scaleX, scaleY);
+      
+      photoTexture.wrapS = THREE.RepeatWrapping;
+      photoTexture.wrapT = THREE.RepeatWrapping;
+      photoTexture.needsUpdate = true;
+    }
+  }, [photoTexture, config.photoRotation, config.photoFlipV, config.photoFlipH]);
+
   const outerW = 4.0;
   const outerH = 5.0; 
   const rimDepth = 1.1;
@@ -780,7 +796,7 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
       )}
 
       {/* Main Single Photo Card - Massive centered focal print, beautifully mounted */}
-      <group position={[0, -0.06, 0.1]} rotation={[0, -0.03, 0.01]}>
+      <group position={[0, -0.06, 0.1]} rotation={[0, 0, 0]}>
         {/* Ivory bevel mount backdrop frame - larger to serve as a gorgeous passe-partout border */}
         <mesh position={[0, 0, -0.015]} castShadow>
           <boxGeometry args={[displayW + 0.38, displayH + 1.25, 0.04]} />
