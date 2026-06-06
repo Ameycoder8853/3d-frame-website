@@ -394,10 +394,10 @@ function LuxuryOccasionPlaque({ text, y, displayW, isMobile, isInitialized }: { 
               line2 += (line2 ? ' ' : '') + words[i];
             }
           }
-          ctx.fillText(`"${line1}`, 512, 94);
-          ctx.fillText(`${line2}"`, 512, 162);
+          ctx.fillText(line1, 512, 94);
+          ctx.fillText(line2, 512, 162);
         } else {
-          ctx.fillText(`"${text}"`, 512, 128);
+          ctx.fillText(text, 512, 128);
         }
       } else {
         ctx.font = 'bold 90px Georgia, "Playfair Display", "Times New Roman", serif';
@@ -807,7 +807,7 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
         <mesh key={photoTexture ? photoTexture.uuid : 'loading'} castShadow receiveShadow position={[0, 0.15, 0.035]}>
           <planeGeometry args={[displayW, displayH]} />
           {photoTexture ? (
-            <meshStandardMaterial map={photoTexture} toneMapped={false} roughness={0.35} side={THREE.DoubleSide} />
+            <meshStandardMaterial map={photoTexture} toneMapped={true} roughness={0.35} side={THREE.DoubleSide} />
           ) : (
             <meshStandardMaterial color="#faf6f0" roughness={0.5} side={THREE.DoubleSide} />
           )}
@@ -979,20 +979,20 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
           antialias: !isMobile, 
           precision: isMobile ? 'mediump' : 'highp',
           toneMapping: THREE.ACESFilmicToneMapping, 
-          toneMappingExposure: 0.38, // Lowered exposure significantly to reduce over-brightness
+          toneMappingExposure: 0.24, // Lowered exposure significantly to reduce over-brightness
           alpha: true,
           preserveDrawingBuffer: true
         }}
         className="z-10 relative"
       >
         {/* Direct Ambient baseline lighting fill */}
-        <ambientLight intensity={0.03} /> {/* Reduced from 0.10 for standard dark-room elegance */}
+        <ambientLight intensity={0.015} /> {/* Reduced from 0.03 for standard dark-room elegance */}
         
         {/* Gallery Spotlighting casting elegant hard shadows */}
         <directionalLight 
           castShadow={!isMobile} 
           position={[3.0, 4.5, 3.5]} 
-          intensity={0.20} // Reduced intensity from 0.45 to prevent washed-out look
+          intensity={0.12} // Reduced intensity from 0.20 to prevent washed-out look
           shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
           shadow-bias={-0.00015}
         />
@@ -1000,13 +1000,13 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         {/* Beautiful subtle filling flash from bottom-left room bounces */}
         <directionalLight 
           position={[-3, -3, 2]} 
-          intensity={0.02} // Softened back/bounce light
+          intensity={0.01} // Softened back/bounce light
         />
 
         {/* Front-facing head-on soft key fill light specifically to keep text elements, titles, and nickname plates illuminated at any angle */}
         <directionalLight 
           position={[0, 0, 5.0]} 
-          intensity={0.05} // Low key fill instead of harsh highlight
+          intensity={0.03} // Low key fill instead of harsh highlight
           castShadow={false}
         />
 
@@ -1030,7 +1030,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         </mesh>
 
         {/* Stable 3D placement at a classy starting angle */}
-        <group rotation={[0.08, -0.22, 0]}>
+        <group rotation={[0, 0, 0]}>
           <Frame3D 
             photoDataUrl={photoDataUrl} 
             config={config} 
