@@ -630,12 +630,12 @@ function Frame3D({ photoDataUrl, config }: { photoDataUrl: string, config: Frame
       <group position={[0, -0.06, 0.1]} rotation={[0, -0.03, 0.01]}>
         {/* Ivory bevel mount backdrop frame - larger to serve as a gorgeous passe-partout border */}
         <mesh position={[0, 0, -0.015]} castShadow>
-          <boxGeometry args={[displayW + 0.38, displayH + 0.9, 0.04]} />
+          <boxGeometry args={[displayW + 0.38, displayH + 1.25, 0.04]} />
           <primitive object={ luxuryPlasterMaterial } attach="material" />
         </mesh>
         
         {/* Photographic plate - positioned slightly up in the matte frame for a high-end designer layout */}
-        <mesh key={photoTexture ? photoTexture.uuid : 'loading'} castShadow receiveShadow position={[0, 0.08, 0.035]}>
+        <mesh key={photoTexture ? photoTexture.uuid : 'loading'} castShadow receiveShadow position={[0, 0.15, 0.035]}>
           <planeGeometry args={[displayW, displayH]} />
           {photoTexture ? (
             <meshStandardMaterial map={photoTexture} toneMapped={false} roughness={0.35} side={THREE.DoubleSide} />
@@ -646,7 +646,7 @@ function Frame3D({ photoDataUrl, config }: { photoDataUrl: string, config: Frame
 
         {/* Dynamic Photo Frame Integrated Typography - HAPPY BIRTHDAY / HAPPY ANNIVERSARY celebration text embossed on top border of frame */}
         {celebrationHeader && celebrationTexture && (
-          <mesh position={[0, displayH / 2 + 0.22, 0.022]} castShadow receiveShadow>
+          <mesh position={[0, displayH / 2 + 0.38, 0.022]} castShadow receiveShadow>
             <planeGeometry args={[displayW + 0.3, 0.28]} />
             <meshStandardMaterial map={celebrationTexture} transparent={true} roughness={0.4} metalness={0.1} />
           </mesh>
@@ -654,12 +654,12 @@ function Frame3D({ photoDataUrl, config }: { photoDataUrl: string, config: Frame
 
         {/* INTEGRATED OCCASION BRASS PLAQUE MOUNTED DIRECTLY ON THE PHOTO FRAME BOTTOM BORDER */}
         {config.occasion && config.occasion.trim() !== '' && (
-          <LuxuryOccasionPlaque text={config.occasion} y={-displayH / 2 - 0.15} displayW={displayW} />
+          <LuxuryOccasionPlaque text={config.occasion} y={0.15 - displayH / 2 - 0.22} displayW={displayW} />
         )}
 
         {/* INTEGRATED NICKNAME PLAQUE MOUNTED DIRECTLY ON THE BOTTOM OF THE MAIN PHOTO FRAME */}
         {config.nickname && config.nickname.trim() !== '' && (
-          <LuxuryNicknamePlaque text={config.nickname} y={-displayH / 2 - 0.35} />
+          <LuxuryNicknamePlaque text={config.nickname} y={0.15 - displayH / 2 - 0.54} />
         )}
       </group>
 
