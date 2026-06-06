@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
-import { Maximize2, Minimize2 } from 'lucide-react';
+import { Maximize2, Minimize2, Camera, Check } from 'lucide-react';
 import { FrameConfig, MiniPolaroid, RoseDecoration, CompartmentItem } from '../types';
 
 interface Scene3DProps {
@@ -826,9 +826,11 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
 }
 
 export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [captureStatus, setCaptureStatus] = useState<'idle' | 'capturing' | 'success'>('idle');
 
   useEffect(() => {
     const handleResize = () => {
@@ -848,15 +850,77 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleCaptureSnapshot = () => {
+    if (!containerRef.current) return;
+    const canvas = containerRef.current.querySelector('canvas');
+    if (!canvas) return;
+
+    setCaptureStatus('capturing');
+
+    // Small delay to let the UI update and draw beautifully before extraction
+    setTimeout(() => {
+      try {
+        const dataUrl = canvas.toDataURL('image/png', 1.0);
+        const link = document.createElement('a');
+        const occasionName = config.occasion ? config.occasion.toLowerCase().replace(/[^a-z0-9_-]/g, '_') : 'custom';
+        link.download = `shadowbox_${occasionName}_snapshot.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        setCaptureStatus('success');
+        setTimeout(() => {
+          setCaptureStatus('idle');
+        }, 1800);
+      } catch (err) {
+        console.error("Failed to capture 2D snapshot:", err);
+        setCaptureStatus('idle');
+      }
+    }, 350);
+  };
+
   return (
-    <div className={
-      isFullscreen 
-        ? "fixed inset-0 z-50 bg-zinc-950 overflow-hidden cursor-grab active:cursor-grabbing flex flex-col h-screen w-screen"
-        : "w-full h-[75vh] bg-[radial-gradient(circle_at_50%_35%,_#fbf9f6_0%,_#e6e1d6_60%,_#c2bbb0_100%)] rounded-3xl overflow-hidden shadow-2xl relative cursor-grab active:cursor-grabbing border border-zinc-200/40"
-    }>
+    <div 
+      ref={containerRef}
+      className={
+        isFullscreen 
+          ? "fixed inset-0 z-50 bg-zinc-950 overflow-hidden cursor-grab active:cursor-grabbing flex flex-col h-screen w-screen"
+          : "w-full h-[75vh] bg-[radial-gradient(circle_at_50%_35%,_#fbf9f6_0%,_#e6e1d6_60%,_#c2bbb0_100%)] rounded-3xl overflow-hidden shadow-2xl relative cursor-grab active:cursor-grabbing border border-zinc-200/40"
+      }
+    >
       
       {/* Viewport Control Buttons */}
       <div className="absolute top-4 right-4 z-40 flex items-center gap-2 pointer-events-auto">
+        <button
+          type="button"
+          onClick={handleCaptureSnapshot}
+          disabled={captureStatus === 'capturing'}
+          className={`${
+            captureStatus === 'success'
+              ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+              : 'bg-white/95 text-zinc-900 border-zinc-200 hover:bg-white active:scale-95'
+          } backdrop-blur-md px-4 py-2.5 rounded-2xl border shadow-[0_4px_12px_rgba(0,0,0,0.06)] flex items-center justify-center gap-2 font-medium text-xs transition-all cursor-pointer pointer-events-auto select-none`}
+        >
+          {captureStatus === 'capturing' && (
+            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          )}
+          {captureStatus === 'idle' && <Camera className="w-4 h-4 text-zinc-700" />}
+          {captureStatus === 'success' && <Check className="w-4 h-4 text-white" />}
+          
+          <span>
+            {captureStatus === 'capturing' 
+              ? "Capturing..." 
+              : captureStatus === 'success' 
+                ? "Snapshot Saved!" 
+                : "Capture 2D Snapshot"
+            }
+          </span>
+        </button>
+
         <button
           type="button"
           onClick={() => setIsFullscreen(!isFullscreen)}
@@ -875,7 +939,8 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
           precision: isMobile ? 'mediump' : 'highp',
           toneMapping: THREE.ACESFilmicToneMapping, 
           toneMappingExposure: 0.85,
-          alpha: true 
+          alpha: true,
+          preserveDrawingBuffer: true
         }}
         className="z-10 relative"
       >
