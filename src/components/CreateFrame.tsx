@@ -122,16 +122,16 @@ export default function CreateFrame({ onGenerate, isLoading }: CreateFrameProps)
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">Custom Plaque Engraving Quote</label>
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Event Name/Date</label>
           <input
             type="text"
-            placeholder="Leave blank for automatic, occasion-styled quote!"
+            placeholder="e.g. Oct 12, 1999 or 25th Wedding Anniversary"
             value={quote}
             onChange={(e) => setQuote(e.target.value)}
             className="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none transition-all placeholder:text-zinc-400 font-sans text-sm"
           />
           <p className="text-[10px] text-zinc-400 mt-1 leading-normal">
-            Instead of repeating the occasion (e.g. Birthday), this beautiful quote will be custom-engraved onto the brass plaque at the bottom of the frame.
+            This event name, year, or date will be custom-engraved onto the brass plaque at the bottom of the frame instead of a citation quote.
           </p>
         </div>
         <div>

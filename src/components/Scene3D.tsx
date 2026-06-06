@@ -564,6 +564,77 @@ function Rose3D({ color, position, scale, isMobile }: { color: string, position:
   );
 }
 
+// Border light maala draping string lights along the inner borders
+function BorderLightMaala() {
+  const beads = useMemo(() => {
+    const list: [number, number, number][] = [];
+    const w = 1.68; // inner width boundary
+    const h = 2.18; // inner height boundary
+    const z = 0.28; // set forward in the box depth
+    
+    // Top border (left to right) - draped with sine wave
+    const topCount = 11;
+    for (let i = 0; i <= topCount; i++) {
+      const t = i / topCount;
+      const x = -w + t * (w * 2);
+      const y = h - 0.04 - 0.08 * Math.sin(t * Math.PI);
+      list.push([x, y, z]);
+    }
+    
+    // Right border (top to bottom) - draped with sine wave
+    const rightCount = 13;
+    for (let i = 1; i <= rightCount; i++) {
+      const t = i / rightCount;
+      const y = h - t * (h * 2);
+      const x = w - 0.04 - 0.08 * Math.sin(t * Math.PI);
+      list.push([x, y, z]);
+    }
+    
+    // Bottom border (right to left) - draped with sine wave
+    const bottomCount = 11;
+    for (let i = 1; i <= bottomCount; i++) {
+      const t = i / bottomCount;
+      const x = w - t * (w * 2);
+      const y = -h + 0.04 + 0.08 * Math.sin(t * Math.PI);
+      list.push([x, y, z]);
+    }
+    
+    // Left border (bottom to top) - draped with sine wave
+    const leftCount = 12;
+    for (let i = 1; i < leftCount; i++) {
+      const t = i / leftCount;
+      const y = -h + t * (h * 2);
+      const x = -w + 0.04 + 0.08 * Math.sin(t * Math.PI);
+      list.push([x, y, z]);
+    }
+    
+    return list;
+  }, []);
+
+  return (
+    <group>
+      {/* Small warm local pointlights around corner regions to illuminate frame elegantly */}
+      <pointLight position={[-1.3, 1.8, 0.4]} intensity={0.12} distance={2.0} decay={2.0} color="#ffb347" />
+      <pointLight position={[1.3, 1.8, 0.4]} intensity={0.12} distance={2.0} decay={2.0} color="#ffb347" />
+      <pointLight position={[-1.3, -1.8, 0.4]} intensity={0.12} distance={2.0} decay={2.0} color="#ffb347" />
+      <pointLight position={[1.3, -1.8, 0.4]} intensity={0.12} distance={2.0} decay={2.0} color="#ffb347" />
+      
+      {/* Render actual miniature glowing beads */}
+      {beads.map((pos, idx) => (
+        <mesh key={idx} position={pos}>
+          <sphereGeometry args={[0.038, 8, 8]} />
+          <meshStandardMaterial 
+            color="#ffeab3" 
+            emissive="#ff9400" 
+            emissiveIntensity={4.5}
+            roughness={0.1}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 // Double-layered glass frame elements
 function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataUrl: string, config: FrameConfig, isMobile: boolean, isInitialized: boolean }) {
   const photoTexture = useSafeTexture(photoDataUrl);
@@ -855,6 +926,9 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
          <Rose3D key={rose.id} color={rose.color} position={rose.position} scale={rose.scale} isMobile={isMobile} />
       ))}
 
+      {/* Always-On Elegant Ambient Indian Border Light Maala Series */}
+      <BorderLightMaala />
+
       {/* Glass pane finish layer to catch elegant glares */}
       <mesh position={[0, 0, rimDepth / 2 - 0.015]}>
         <boxGeometry args={[outerW, outerH, 0.012]} />
@@ -979,7 +1053,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
           antialias: !isMobile, 
           precision: isMobile ? 'mediump' : 'highp',
           toneMapping: THREE.ACESFilmicToneMapping, 
-          toneMappingExposure: 0.24, // Lowered exposure significantly to reduce over-brightness
+          toneMappingExposure: 0.16, // Lowered exposure significantly to reduce over-brightness
           alpha: true,
           preserveDrawingBuffer: true
         }}
@@ -992,7 +1066,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         <directionalLight 
           castShadow={!isMobile} 
           position={[3.0, 4.5, 3.5]} 
-          intensity={0.12} // Reduced intensity from 0.20 to prevent washed-out look
+          intensity={0.06} // Reduced intensity from 0.20 to prevent washed-out look
           shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
           shadow-bias={-0.00015}
         />
@@ -1006,7 +1080,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         {/* Front-facing head-on soft key fill light specifically to keep text elements, titles, and nickname plates illuminated at any angle */}
         <directionalLight 
           position={[0, 0, 5.0]} 
-          intensity={0.03} // Low key fill instead of harsh highlight
+          intensity={0.015} // Low key fill instead of harsh highlight
           castShadow={false}
         />
 

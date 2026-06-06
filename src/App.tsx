@@ -140,7 +140,7 @@ export default function App() {
                   {frameConfig.occasion || 'Custom Frame'}
                 </h1>
                 <p className="text-zinc-500 text-sm max-w-md mx-auto">
-                  A high-fidelity 3D diorama. Customize physical parameters, checkout, or leave to test WhatsApp abandoned recovery.
+                  A high-fidelity 3D diorama of your customized gift. Spin and inspect your beautiful custom frame in full 360° detail.
                 </p>
              </div>
 
@@ -159,10 +159,10 @@ export default function App() {
                  </Suspense>
 
                  {/* Dynamic Photo Alignment adjustment panel */}
-                  <div className="bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                  <div className="hidden">
                     <div className="text-left w-full md:w-auto">
                       <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
-                        <span>📐</span> Photo Alignment Adjustments
+                        <span>📐</span> Hidden Adjustments
                       </h4>
                       <p className="text-xs text-zinc-500 mt-1">
                         Instantly rotate or flip your photo to orient it perfectly upright in both 2D and 3D views.
@@ -214,43 +214,13 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Real Automations Log Panel to display instant feedback */}
-                 <div className="bg-zinc-900 text-zinc-300 p-5 rounded-2xl shadow-xl font-mono text-xs border border-zinc-800">
-                   <div className="flex justify-between items-center border-b border-zinc-800 pb-3 mb-3">
-                     <span className="font-bold text-[10px] text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                       <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-ping"></span>
-                       Webhook Automation Logs
-                     </span>
-                     <span className="text-[10px] text-zinc-500">NodeJS Express Listener</span>
-                   </div>
-                   <div className="space-y-2 max-h-36 overflow-y-auto">
-                     {logs.length === 0 ? (
-                       <p className="text-zinc-500 italic">Waiting for events to trigger...</p>
-                     ) : (
-                       logs.map((log) => (
-                         <div key={log.id} className="flex items-start space-x-2.5">
-                           <span className="text-zinc-500">{log.time}</span>
-                           <span className={`px-1.5 py-0.2 rounded text-[10px] uppercase font-bold leading-none ${
-                             log.type === 'trigger' 
-                               ? 'bg-amber-500/10 text-amber-500' 
-                               : log.type === 'whatsapp' 
-                               ? 'bg-emerald-500/10 text-emerald-400' 
-                               : 'bg-indigo-500/10 text-indigo-400'
-                           }`}>
-                             {log.type}
-                           </span>
-                           <span className="text-zinc-200 flex-1">{log.text}</span>
-                         </div>
-                       ))
-                     )}
-                   </div>
-                 </div>
+                  {/* Webhook logs hidden from end user */}
                </div>
 
                 {/* Configuration details and action checklist column */}
                 <div className="space-y-6">
                   <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm space-y-6">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400">Order Summary</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400">Design Overview</h3>
                     
                     <div className="space-y-3 font-mono text-xs border-b border-zinc-100 pb-5 text-zinc-600">
                       <div className="flex justify-between">
@@ -267,9 +237,9 @@ export default function App() {
                       </div>
                       {frameConfig.quote && (
                         <div className="flex flex-col gap-1 pt-1 border-t border-dashed border-zinc-100">
-                          <span className="text-zinc-400">Plaque Quote:</span>
+                          <span className="text-zinc-400">Event Details:</span>
                           <span className="font-sans italic text-zinc-850 font-medium bg-zinc-50 p-2 rounded border border-zinc-100 block max-h-20 overflow-y-auto">
-                            "{frameConfig.quote}"
+                            {frameConfig.quote}
                           </span>
                         </div>
                       )}
@@ -292,13 +262,6 @@ export default function App() {
 
                     <div className="pt-4 border-t border-zinc-100 space-y-3">
                       <button 
-                        onClick={() => alert('Your design "' + frameConfig.nickname + '" has been submitted successfully to checkout!')}
-                        className="w-full py-3 bg-zinc-950 hover:bg-zinc-800 text-white font-medium text-sm rounded-xl transition-all shadow-md active:scale-[0.98]"
-                      >
-                        Proceed to Checkout (9.90)
-                      </button>
-                      
-                      <button 
                         onClick={() => {
                           setFrameConfig(null);
                           setPhotoDataUrl(null);
@@ -306,7 +269,7 @@ export default function App() {
                           newUrl.searchParams.delete('restore');
                           window.history.pushState({}, '', newUrl);
                         }}
-                        className="w-full py-3 bg-zinc-100 text-zinc-800 text-xs font-semibold rounded-xl hover:bg-zinc-200 transition-colors"
+                        className="w-full py-3 bg-zinc-950 hover:bg-zinc-800 text-white font-medium text-sm rounded-xl transition-all shadow-md active:scale-[0.98]"
                       >
                         Discard & Generate New Design
                       </button>

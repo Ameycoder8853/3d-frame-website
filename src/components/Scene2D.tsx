@@ -208,25 +208,73 @@ export default function Scene2D({ photoDataUrl, config }: Scene2DProps) {
         className={`w-full max-w-[340px] xs:max-w-[360px] aspect-[3.6/4.8] rounded-md relative flex items-center justify-center transition-transform duration-200 ease-out transform-gpu pointer-events-none z-20 ${frameBorderClass}`}
       >
         {/* Fabric Backboard inside frame */}
-        <div 
+         <div 
           style={{
             backgroundColor: config.backgroundColor || '#fdf6e2',
+            backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0) 30%, rgba(0,0,0,0.25) 100%)',
             ...ledBackglowStyle
           }}
           className="absolute inset-0 rounded-sm overflow-hidden flex flex-col justify-between p-4 transition-colors duration-300"
         >
-          {/* Subtle Fairy Lights Array on internal margins */}
-          {(config.hasLedStrip || config.peripheral === 'led-strip') && (
-            <div className="absolute inset-2 border border-dashed border-yellow-400/35 pointer-events-none rounded opacity-80 flex flex-wrap gap-x-8 gap-y-16 justify-around content-around pointer-events-none">
-              {Array.from({ length: 8 }).map((_, i) => (
+          {/* Always-On Gorgeous Ambient Border Light Maala (Fairy Lights String) */}
+          <div className="absolute inset-2 pointer-events-none rounded opacity-95 z-20">
+            {/* Top strand draped with sine wave */}
+            <div className="absolute top-0 left-0 right-0 flex justify-between px-2">
+              {Array.from({ length: 9 }).map((_, i) => (
                 <span 
-                  key={i} 
-                  style={{ backgroundColor: config.ledColor || '#ffb347', boxShadow: `0 0 12px ${config.ledColor || '#ffb347'}, 0 0 6px white` }}
-                  className="w-1.5 h-1.5 rounded-full animate-pulse" 
+                  key={`t-${i}`} 
+                  style={{ 
+                    transform: `translateY(${Math.sin((i / 8) * Math.PI) * 4}px)`,
+                    backgroundColor: '#ffb74d', 
+                    boxShadow: '0 0 10px #ff9800, 0 0 4px #fff, 0 0 1px #fff'
+                  }}
+                  className="w-1.5 h-1.5 rounded-full animate-pulse inline-block" 
                 />
               ))}
             </div>
-          )}
+            {/* Bottom strand draped with sine wave */}
+            <div className="absolute bottom-0 left-0 right-0 flex justify-between px-2">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <span 
+                  key={`b-${i}`} 
+                  style={{ 
+                    transform: `translateY(${-Math.sin((i / 8) * Math.PI) * 4}px)`,
+                    backgroundColor: '#ffb74d', 
+                    boxShadow: '0 0 10px #ff9800, 0 0 4px #fff, 0 0 1px #fff'
+                  }}
+                  className="w-1.5 h-1.5 rounded-full animate-pulse inline-block" 
+                />
+              ))}
+            </div>
+            {/* Left strand draped with sine wave */}
+            <div className="absolute left-0 top-3 bottom-3 flex flex-col justify-between py-1">
+              {Array.from({ length: 11 }).map((_, i) => (
+                <span 
+                  key={`l-${i}`} 
+                  style={{ 
+                    transform: `translateX(${Math.sin((i / 10) * Math.PI) * 4}px)`,
+                    backgroundColor: '#ffb74d', 
+                    boxShadow: '0 0 10px #ff9800, 0 0 4px #fff, 0 0 1px #fff'
+                  }}
+                  className="w-1.5 h-1.5 rounded-full animate-pulse inline-block" 
+                />
+              ))}
+            </div>
+            {/* Right strand draped with sine wave */}
+            <div className="absolute right-0 top-3 bottom-3 flex flex-col justify-between py-1">
+              {Array.from({ length: 11 }).map((_, i) => (
+                <span 
+                  key={`r-${i}`} 
+                  style={{ 
+                    transform: `translateX(${-Math.sin((i / 10) * Math.PI) * 4}px)`,
+                    backgroundColor: '#ffb74d', 
+                    boxShadow: '0 0 10px #ff9800, 0 0 4px #fff, 0 0 1px #fff'
+                  }}
+                  className="w-1.5 h-1.5 rounded-full animate-pulse inline-block" 
+                />
+              ))}
+            </div>
+          </div>
 
           {/* Central Layer Card - holding central Photo frame */}
           <div 
