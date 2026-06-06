@@ -52,6 +52,27 @@ export default function App() {
     }
   }, [frameConfig, photoDataUrl]);
 
+  // Sync state modifications (like rotation, alignment, flip) back to Firestore so they persist on refresh
+  useEffect(() => {
+    if (!frameConfig) return;
+    
+    const delayDebounceFn = setTimeout(() => {
+      saveFrameConfig(frameConfig)
+        .then(() => {
+          console.log('Successfully saved custom frame orientation modifications to database.');
+        })
+        .catch((dbError) => {
+          console.warn('Firestore sync bypassed:', dbError);
+        });
+    }, 1000); // 1-second debounce to batch multiple quick adjustments
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [
+    frameConfig?.photoRotation,
+    frameConfig?.photoFlipV,
+    frameConfig?.photoFlipH,
+  ]);
+
   const handleGenerate = async (formData: any) => {
     setIsGenerating(true);
     setPhotoDataUrl(formData.photoBase64);
