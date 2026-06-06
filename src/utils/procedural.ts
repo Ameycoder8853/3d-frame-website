@@ -1,5 +1,26 @@
 import { FrameConfig, Decoration, TextElement, RoseDecoration, MiniPolaroid, CompartmentItem } from '../types';
 
+export function getDefaultQuote(occasion: string, nickname: string): string {
+  const occ = (occasion || '').toLowerCase().trim();
+  const name = nickname || 'Special One';
+  if (occ.includes('birthday')) {
+    return 'Cheers to another year of beautiful memories!';
+  } else if (occ.includes('anniversary')) {
+    return 'Loved you yesterday, love you still, always have, always will.';
+  } else if (occ.includes('wedding') || occ.includes('marriage')) {
+    return 'Two hearts, one beautiful journey together.';
+  } else if (occ.includes('gradu')) {
+    return 'The future belongs to those who believe in their dreams.';
+  } else if (occ.includes('love') || occ.includes('valentine') || occ.includes('romance')) {
+    return 'In your smile, I see something more beautiful than stars.';
+  } else if (occ.includes('travel') || occ.includes('trip') || occ.includes('road')) {
+    return 'Adventure is worthwhile in itself.';
+  } else if (occ.includes('code') || occ.includes('program') || occ.includes('tech')) {
+    return 'Dream big, create every day, build the future.';
+  }
+  return 'A snapshot of pure joy, frozen in time.';
+}
+
 export function generateProceduralFrame(
   occasion: string,
   nickname: string,
@@ -7,19 +28,96 @@ export function generateProceduralFrame(
   bgColor: string,
   photoBase64: string,
   aspectRatio: number,
-  peripheral: string = 'standee'
+  peripheral: string = 'standee',
+  layoutStyle: 'editorial' | 'collage' | 'minimalist' | 'bento' = 'editorial',
+  quote?: string
 ): FrameConfig {
   const background = bgColor || '#fdf6e2'; // warm gold/ivory parchment
   const parsedLikes = (likes || '').toLowerCase();
   const ledColor = '#ffb347'; // gorgeous warm sunset glow
   
-  const photoPosition: [number, number, number] = [0, -0.2, 0.1];
-  const photoScale: [number, number, number] = [1.8, 2.2, 1];
-  
   const miniPolaroids: MiniPolaroid[] = [];
   const roses: RoseDecoration[] = [];
   const compartments: CompartmentItem[] = [];
   const decorations: Decoration[] = [];
+
+  // 1. Establish layout parameters based on selected style
+  let photoPosition: [number, number, number] = [0, -0.2, 0.1];
+  let photoScale: [number, number, number] = [1.8, 2.2, 1];
+  let slots: [number, number, number][] = [
+    [-1.4, 0.4, 0.18],  // Slot 1
+    [1.4, 0.5, 0.18],   // Slot 2
+    [-1.3, -1.0, 0.18], // Slot 3
+    [1.3, -0.9, 0.18]   // Slot 4
+  ];
+  let slotRotations: [number, number, number][] = [
+    [0, 0, 0.15],
+    [0, 0, -0.1],
+    [0, 0, 0.05],
+    [0, 0, -0.08]
+  ];
+
+  if (layoutStyle === 'collage') {
+    // Tilted vintage polaroid-board collage physics layout
+    photoPosition = [-0.15, -0.15, 0.12];
+    photoScale = [1.7, 2.1, 1];
+    slots = [
+      [-1.4, 0.8, 0.18],
+      [1.4, -0.2, 0.18],
+      [-1.2, -1.2, 0.18],
+      [1.3, 1.1, 0.18]
+    ];
+    slotRotations = [
+      [0.05, -0.05, 0.25],
+      [-0.05, 0.05, -0.15],
+      [0.1, 0.0, 0.08],
+      [-0.08, -0.08, -0.2]
+    ];
+    // Always pre-populate some floating mini-polaroids to complete the polaroid board feel!
+    miniPolaroids.push(
+      { id: 'pol-1', position: [-1.2, 1.45, -0.22], rotation: [0.02, -0.02, -0.14], scale: [0.75, 0.85, 0.05] },
+      { id: 'pol-2', position: [1.2, 1.40, -0.22], rotation: [-0.03, 0.03, 0.16], scale: [0.75, 0.85, 0.05] }
+    );
+  } else if (layoutStyle === 'minimalist') {
+    // Fully clean, gallery style with upright photo frame
+    photoPosition = [0, 0, 0.12];
+    photoScale = [1.9, 2.3, 1];
+    slots = [
+      [-1.5, 1.5, 0.12],
+      [1.5, 1.5, 0.12],
+      [-1.5, -1.5, 0.12],
+      [1.5, -1.5, 0.12]
+    ];
+    slotRotations = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ];
+  } else if (layoutStyle === 'bento') {
+    // Landscape photo, items positioned inside bottom grid zones
+    photoPosition = [0, 0.22, 0.12];
+    photoScale = [2.2, 1.75, 1];
+    slots = [
+      [-1.3, -0.7, 0.18],
+      [1.3, -0.7, 0.18],
+      [-0.8, -0.8, 0.15],
+      [0.8, -0.8, 0.15]
+    ];
+    slotRotations = [
+      [0, 0, 0.05],
+      [0, 0, -0.05],
+      [0, 0, 0],
+      [0, 0, 0]
+    ];
+    // Always provide compartments at bottom to act as trinket drawers!
+    compartments.push(
+      { id: 'comp-1', type: 'bear', position: [-1.3, -1.8, 0.15] },
+      { id: 'comp-2', type: 'scroll', position: [-0.4, -1.8, 0.15] },
+      { id: 'comp-3', type: 'gift', position: [0.4, -1.8, 0.15] },
+      { id: 'comp-4', type: 'flower', position: [1.3, -1.8, 0.15] }
+    );
+  }
 
   // Super rich keyword-to-emoji mapping dictionary
   const emojiDict: Record<string, { emoji: string; name: string }> = {
@@ -170,21 +268,7 @@ export function generateProceduralFrame(
     );
   }
 
-  // Placements coordinates
-  const slots: [number, number, number][] = [
-    [-1.4, 0.4, 0.18],  // Slot 1
-    [1.4, 0.5, 0.18],   // Slot 2
-    [-1.3, -1.0, 0.18], // Slot 3
-    [1.3, -0.9, 0.18]   // Slot 4
-  ];
-
-  const slotRotations: [number, number, number][] = [
-    [0, 0, 0.15],
-    [0, 0, -0.1],
-    [0, 0, 0.05],
-    [0, 0, -0.08]
-  ];
-
+  // Build decorations from computed slots
   customItems.forEach((item, idx) => {
     if (idx < slots.length) {
       decorations.push({
@@ -198,7 +282,8 @@ export function generateProceduralFrame(
     }
   });
 
-  if (parsedLikes.includes('photo') || parsedLikes.includes('polaroid') || parsedLikes.includes('memory') || parsedLikes.includes('camera')) {
+  const isNostalgic = parsedLikes.includes('photo') || parsedLikes.includes('polaroid') || parsedLikes.includes('memory') || parsedLikes.includes('camera') || layoutStyle === 'collage';
+  if (isNostalgic && miniPolaroids.length === 0) {
     miniPolaroids.push(
       { id: 'pol-1', position: [-1.2, 1.4, -0.2], rotation: [0, 0, 0.08], scale: [0.8, 0.9, 0.05] },
       { id: 'pol-2', position: [-0.4, 1.5, -0.2], rotation: [0, 0, -0.05], scale: [0.8, 0.9, 0.05] },
@@ -207,7 +292,8 @@ export function generateProceduralFrame(
     );
   }
   
-  if (parsedLikes.includes('rose') || parsedLikes.includes('flower') || parsedLikes.includes('bloom') || parsedLikes.includes('nature') || parsedLikes.includes('garden') || parsedLikes.includes('floral')) {
+  const wantsRoses = parsedLikes.includes('rose') || parsedLikes.includes('flower') || parsedLikes.includes('bloom') || parsedLikes.includes('nature') || parsedLikes.includes('garden') || parsedLikes.includes('floral') || (occasion && occasion.toLowerCase().includes('anniversary'));
+  if (wantsRoses) {
     roses.push(
       { id: 'rose-tl1', color: '#ff3b5c', position: [-1.5, 1.9, 0.2], scale: 0.3 },
       { id: 'rose-tl2', color: '#ff7fa2', position: [-1.2, 1.8, 0.25], scale: 0.24 },
@@ -219,7 +305,8 @@ export function generateProceduralFrame(
     );
   }
   
-  if (parsedLikes.includes('bear') || parsedLikes.includes('gift') || parsedLikes.includes('toy') || parsedLikes.includes('scroll') || parsedLikes.includes('monkey') || parsedLikes.includes('box') || parsedLikes.includes('cabinet') || parsedLikes.includes('shelf')) {
+  const wantsCompartments = parsedLikes.includes('bear') || parsedLikes.includes('gift') || parsedLikes.includes('toy') || parsedLikes.includes('scroll') || parsedLikes.includes('monkey') || parsedLikes.includes('box') || parsedLikes.includes('cabinet') || parsedLikes.includes('shelf') || layoutStyle === 'bento';
+  if (wantsCompartments && compartments.length === 0) {
     compartments.push(
       { id: 'comp-1', type: 'bear', position: [-1.3, -1.8, 0.15] },
       { id: 'comp-2', type: 'scroll', position: [-0.4, -1.8, 0.15] },
@@ -275,5 +362,7 @@ export function generateProceduralFrame(
     compartments,
     hasLedStrip: true,
     peripheral,
+    layoutStyle,
+    quote: quote && quote.trim() !== '' ? quote.trim() : getDefaultQuote(occasion, nickname)
   };
 }

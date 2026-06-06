@@ -68,7 +68,7 @@ function useSafeTexture(url: string | null) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.flipY = false; // Prevent ImageBitmap from mapping upside-down in ThreeJS WebGL view
+        tex.flipY = true; // Correctly flip ImageBitmap vertically on GPU upload so it displays right-side up
         
         // Skip heavy synchronous CPU-bound mipmap calculations to achieve instant load
         tex.generateMipmaps = false; 
@@ -306,7 +306,10 @@ function AcrylicToken3D({ name, emoji, position, scale, rotation, isMobile, isIn
 
 // Highly realistic premium engraved brass plaque for frame events / occasions
 function LuxuryOccasionPlaque({ text, y, displayW, isMobile, isInitialized }: { text: string; y: number; displayW: number; isMobile: boolean; isInitialized: boolean }) {
-  const plaqueW = Math.max(2.4, Math.min(3.6, text.length * 0.15 + 0.6));
+  const isLong = text.length > 20;
+  const plaqueW = isLong 
+    ? Math.max(3.8, Math.min(4.8, text.length * 0.08 + 1.2))
+    : Math.max(2.4, Math.min(3.6, text.length * 0.15 + 0.6));
   const useHighFidelity = isInitialized && !isMobile;
 
   // 1. Brushed brass background texture
@@ -364,8 +367,7 @@ function LuxuryOccasionPlaque({ text, y, displayW, isMobile, isInitialized }: { 
       ctx.lineWidth = 14;
       ctx.strokeRect(18, 18, 988, 220);
 
-      // Draw premium elegant serif text
-      ctx.font = 'bold 96px Georgia, "Playfair Display", "Times New Roman", serif';
+      // Choose font style and draw premium elegant serif text
       ctx.fillStyle = '#110c03'; // Deep charcoal/black for outstanding contrast
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -376,14 +378,38 @@ function LuxuryOccasionPlaque({ text, y, displayW, isMobile, isInitialized }: { 
       ctx.shadowOffsetY = 2;
       ctx.shadowBlur = 1;
 
-      ctx.fillText(text.toUpperCase(), 512, 128);
+      if (isLong) {
+        ctx.font = 'italic 52px Georgia, "Playfair Display", "Times New Roman", serif';
+        // Auto wrap into two lines if it's very long (e.g. > 40 characters)
+        if (text.length > 35) {
+          ctx.font = 'italic 44px Georgia, "Playfair Display", "Times New Roman", serif';
+          const words = text.split(' ');
+          let line1 = '';
+          let line2 = '';
+          let mid = Math.floor(words.length / 2);
+          for (let i = 0; i < words.length; i++) {
+            if (i < mid) {
+              line1 += (line1 ? ' ' : '') + words[i];
+            } else {
+              line2 += (line2 ? ' ' : '') + words[i];
+            }
+          }
+          ctx.fillText(`"${line1}`, 512, 94);
+          ctx.fillText(`${line2}"`, 512, 162);
+        } else {
+          ctx.fillText(`"${text}"`, 512, 128);
+        }
+      } else {
+        ctx.font = 'bold 90px Georgia, "Playfair Display", "Times New Roman", serif';
+        ctx.fillText(text.toUpperCase(), 512, 128);
+      }
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.minFilter = THREE.LinearFilter;
     texture.needsUpdate = true;
     return texture;
-  }, [text]);
+  }, [text, isLong]);
 
   return (
     <group position={[0, y, 0.14]}>
@@ -786,9 +812,9 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
           </mesh>
         )}
 
-        {/* INTEGRATED OCCASION BRASS PLAQUE MOUNTED DIRECTLY ON THE PHOTO FRAME BOTTOM BORDER */}
-        {config.occasion && config.occasion.trim() !== '' && (
-          <LuxuryOccasionPlaque text={config.occasion} y={0.15 - displayH / 2 - 0.24} displayW={displayW} isMobile={isMobile} isInitialized={isInitialized} />
+        {/* INTEGRATED CUSTOM QUOTE ENGRAVED BRASS PLAQUE MOUNTED DIRECTLY ON THE BOTTOM BORDER */}
+        {(config.quote || config.occasion) && (config.quote || config.occasion).trim() !== '' && (
+          <LuxuryOccasionPlaque text={config.quote || config.occasion} y={0.15 - displayH / 2 - 0.24} displayW={displayW} isMobile={isMobile} isInitialized={isInitialized} />
         )}
 
         {/* INTEGRATED NICKNAME PLAQUE MOUNTED DIRECTLY ON THE BOTTOM OF THE MAIN PHOTO FRAME */}
@@ -834,7 +860,9 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      // Keep isMobile false always to disable the viewport optimizations that degraded rendering quality
+      // (like turning off antialiasing, reducing shader precision to mediump, and disabling shadows)
+      setIsMobile(false);
     };
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -934,24 +962,24 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
       <Canvas 
         shadows={!isMobile} 
         camera={{ position: [0, 0, 5.0], fov: 48 }} 
-        gl={{ 
+               gl={{ 
           antialias: !isMobile, 
           precision: isMobile ? 'mediump' : 'highp',
           toneMapping: THREE.ACESFilmicToneMapping, 
-          toneMappingExposure: 0.85,
+          toneMappingExposure: 0.38, // Lowered exposure significantly to reduce over-brightness
           alpha: true,
           preserveDrawingBuffer: true
         }}
         className="z-10 relative"
       >
         {/* Direct Ambient baseline lighting fill */}
-        <ambientLight intensity={0.10} />
+        <ambientLight intensity={0.03} /> {/* Reduced from 0.10 for standard dark-room elegance */}
         
         {/* Gallery Spotlighting casting elegant hard shadows */}
         <directionalLight 
           castShadow={!isMobile} 
           position={[3.0, 4.5, 3.5]} 
-          intensity={0.45} 
+          intensity={0.20} // Reduced intensity from 0.45 to prevent washed-out look
           shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
           shadow-bias={-0.00015}
         />
@@ -959,13 +987,13 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         {/* Beautiful subtle filling flash from bottom-left room bounces */}
         <directionalLight 
           position={[-3, -3, 2]} 
-          intensity={0.06} 
+          intensity={0.02} // Softened back/bounce light
         />
 
         {/* Front-facing head-on soft key fill light specifically to keep text elements, titles, and nickname plates illuminated at any angle */}
         <directionalLight 
           position={[0, 0, 5.0]} 
-          intensity={0.12} 
+          intensity={0.05} // Low key fill instead of harsh highlight
           castShadow={false}
         />
 
@@ -978,6 +1006,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         />
 
         <Suspense fallback={null}>
+          {/* Static HDRI environment lookup to achieve extremely elegant, crisp physical lighting */}
           <Environment preset="apartment" />
         </Suspense>
 
@@ -1014,7 +1043,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
           <Bloom 
             luminanceThreshold={0.95} 
             luminanceSmoothing={0.85} 
-            intensity={0.30} 
+            intensity={0.08} // Subdued bloom to let colors look highly saturated and not washed out
             mipmapBlur
           />
         </EffectComposer>

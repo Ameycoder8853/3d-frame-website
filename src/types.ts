@@ -58,4 +58,6 @@ export interface FrameConfig {
   hasLedStrip?: boolean;
   whatsappPhone?: string;
   peripheral?: string;
+  layoutStyle?: 'editorial' | 'collage' | 'minimalist' | 'bento';
+  quote?: string;
 }

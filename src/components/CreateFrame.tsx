@@ -14,6 +14,8 @@ export default function CreateFrame({ onGenerate, isLoading }: CreateFrameProps)
   const [likes, setLikes] = useState('');
   const [peripheral, setPeripheral] = useState('standee');
   const [bgColor, setBgColor] = useState('#004f99');
+  const [layoutStyle, setLayoutStyle] = useState<'editorial' | 'collage' | 'minimalist' | 'bento'>('editorial');
+  const [quote, setQuote] = useState('');
 
   const handlePhotoUpload = (dataUrl: string, aspect: number) => {
     setPhotoDataUrl(dataUrl);
@@ -31,6 +33,8 @@ export default function CreateFrame({ onGenerate, isLoading }: CreateFrameProps)
       likes,
       peripheral,
       bgColor,
+      layoutStyle,
+      quote,
     });
   };
 
@@ -91,6 +95,44 @@ export default function CreateFrame({ onGenerate, isLoading }: CreateFrameProps)
             onChange={(e) => setLikes(e.target.value)}
             className="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none transition-all placeholder:text-zinc-400 font-sans text-sm"
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Diorama Layout Style</label>
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { id: 'editorial', label: 'Classic Editorial', desc: 'Symmetrical floating tokens' },
+              { id: 'collage', label: 'Vintage Collage', desc: 'Tilted frame with polaroids' },
+              { id: 'minimalist', label: 'Gallery Minimalist', desc: 'Clean, upright art focus' },
+              { id: 'bento', label: 'Bento Shelf', desc: 'Horizontal frame with shelves' }
+            ].map((st) => (
+              <button
+                type="button"
+                key={st.id}
+                onClick={() => setLayoutStyle(st.id as any)}
+                className={`text-left p-3 rounded-xl border text-xs transition-all flex flex-col gap-0.5 ${
+                  layoutStyle === st.id
+                    ? 'border-zinc-900 bg-zinc-50 ring-1 ring-zinc-900 shadow-sm'
+                    : 'border-zinc-200 bg-white hover:border-zinc-300'
+                }`}
+              >
+                <span className="font-semibold text-zinc-900">{st.label}</span>
+                <span className="text-zinc-500 font-normal leading-tight">{st.desc}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Custom Plaque Engraving Quote</label>
+          <input
+            type="text"
+            placeholder="Leave blank for automatic, occasion-styled quote!"
+            value={quote}
+            onChange={(e) => setQuote(e.target.value)}
+            className="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none transition-all placeholder:text-zinc-400 font-sans text-sm"
+          />
+          <p className="text-[10px] text-zinc-400 mt-1 leading-normal">
+            Instead of repeating the occasion (e.g. Birthday), this beautiful quote will be custom-engraved onto the brass plaque at the bottom of the frame.
+          </p>
         </div>
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1">Frame Peripheral Attachment</label>

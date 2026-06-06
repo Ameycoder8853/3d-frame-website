@@ -1,5 +1,5 @@
 {
-  "name": "Custom AI Generative 3D Frame",
+  "name": "3D Frame Website",
   "description": "Upload a photo and details to let AI generate a completely custom 3D shadowbox design.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

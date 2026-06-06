@@ -76,7 +76,9 @@ export default function App() {
           formData.bgColor || '#fdf6e2',
           formData.photoBase64,
           formData.aspectRatio || 1,
-          formData.peripheral || 'standee'
+          formData.peripheral || 'standee',
+          formData.layoutStyle || 'editorial',
+          formData.quote || ''
         );
       }
       
@@ -112,7 +114,7 @@ export default function App() {
             <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center text-white font-serif text-sm font-bold">
               🔮
             </div>
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">AI Shadowbox Studio</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">3D Frame Website</h2>
           </div>
           <span className="text-[10px] bg-indigo-500/15 text-indigo-700 px-2 py-0.5 rounded-full font-mono font-semibold tracking-wide uppercase">
             360° Realism Ready
@@ -199,6 +201,18 @@ export default function App() {
                         <span className="font-bold text-zinc-950">{frameConfig.nickname}</span>
                       </div>
                       <div className="flex justify-between">
+                        <span>Layout Aesthetic:</span>
+                        <span className="font-bold text-zinc-950 uppercase">{frameConfig.layoutStyle || 'editorial'}</span>
+                      </div>
+                      {frameConfig.quote && (
+                        <div className="flex flex-col gap-1 pt-1 border-t border-dashed border-zinc-100">
+                          <span className="text-zinc-400">Plaque Quote:</span>
+                          <span className="font-sans italic text-zinc-850 font-medium bg-zinc-50 p-2 rounded border border-zinc-100 block max-h-20 overflow-y-auto">
+                            "{frameConfig.quote}"
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-1">
                         <span>Color theme:</span>
                         <span className="font-bold text-zinc-950 uppercase">{frameConfig.backgroundColor}</span>
                       </div>
