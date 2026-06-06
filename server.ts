@@ -392,8 +392,16 @@ async function startServer() {
       const configStr = response.text || "{}";
       const frameConfig = JSON.parse(configStr);
 
+      // Inject fallback diorama items and enforce exact decorations matching the user's typed likes and interests
+      const computedFallback = generateProceduralFrame(occasion, nickname, likes, bgColor, photoBase64, req.body.aspectRatio || 1, peripheral || 'standee');
+      
+      frameConfig.decorations = computedFallback.decorations;
+      frameConfig.roses = computedFallback.roses;
+      frameConfig.miniPolaroids = computedFallback.miniPolaroids;
+      frameConfig.compartments = computedFallback.compartments;
+      frameConfig.hasLedStrip = true;
+
       // give unique ids to elements
-      frameConfig.decorations = frameConfig.decorations.map((d: any, i: number) => ({ ...d, id: `dec-${i}` }));
       frameConfig.textElements = frameConfig.textElements.map((t: any, i: number) => ({ ...t, id: `txt-${i}` }));
       frameConfig.id = `frame-${Date.now()}`;
       frameConfig.photoBase64 = photoBase64;
@@ -401,13 +409,6 @@ async function startServer() {
       frameConfig.likes = likes || '';
       frameConfig.whatsappPhone = '';
       frameConfig.peripheral = peripheral || 'standee';
-      
-      // Inject fallback diorama items even if Gemini is active to enrich the graphic depth
-      const computedFallback = generateProceduralFrame(occasion, nickname, likes, bgColor, photoBase64, req.body.aspectRatio || 1, peripheral || 'standee');
-      frameConfig.roses = computedFallback.roses;
-      frameConfig.miniPolaroids = computedFallback.miniPolaroids;
-      frameConfig.compartments = computedFallback.compartments;
-      frameConfig.hasLedStrip = true;
 
       res.json(frameConfig);
     } catch (error: any) {

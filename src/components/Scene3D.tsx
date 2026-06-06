@@ -229,43 +229,42 @@ function AcrylicToken3D({ name, emoji, position, scale, rotation }: any) {
 
 // Highly realistic premium engraved brass plaque for frame events / occasions
 function LuxuryOccasionPlaque({ text, y, displayW }: { text: string; y: number; displayW: number }) {
-  const brassMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#e0ba4a', // brilliant polished gold leaf brass
-    roughness: 0.14,
-    metalness: 0.9,
-  }), []);
-
-  const borderTrimMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#cca43b', // rich burnished gold border lining
-    roughness: 0.1,
-    metalness: 0.95,
-  }), []);
-
   const plaqueW = Math.max(2.4, Math.min(3.6, text.length * 0.15 + 0.6));
 
   const plaqueTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
-    canvas.height = 128;
+    canvas.height = 256;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.clearRect(0, 0, 1024, 128);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      // 1. Draw rich brushed brass/gold solid background gradient
+      const grad = ctx.createLinearGradient(0, 0, 1024, 256);
+      grad.addColorStop(0, '#cca43b');
+      grad.addColorStop(0.2, '#f5e4a3');
+      grad.addColorStop(0.5, '#dfba6b');
+      grad.addColorStop(0.8, '#f5e4a3');
+      grad.addColorStop(1, '#cca43b');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1024, 256);
 
-      // Premium elegant serif font
-      ctx.font = 'bold 50px Georgia, "Playfair Display", "Times New Roman", serif';
-      ctx.fillStyle = '#161005'; // oxidized deep charcoal
+      // 2. Elegantly engraved crisp dark inner border
+      ctx.strokeStyle = '#4e370a';
+      ctx.lineWidth = 12;
+      ctx.strokeRect(20, 20, 984, 216);
+
+      // 3. Draw premium elegant serif text
+      ctx.font = 'bold 96px Georgia, "Playfair Display", "Times New Roman", serif';
+      ctx.fillStyle = '#161005'; // Oxidation deep charcoal
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
-      // Engraving physical micro-relief shadow styling
+      // Embossed highlight engraving shadow
       ctx.shadowColor = '#ffffff';
-      ctx.shadowOffsetX = 1;
-      ctx.shadowOffsetY = 1;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
       ctx.shadowBlur = 1;
 
-      ctx.fillText(text.toUpperCase(), 512, 64);
+      ctx.fillText(text.toUpperCase(), 512, 128);
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -277,27 +276,15 @@ function LuxuryOccasionPlaque({ text, y, displayW }: { text: string; y: number; 
   return (
     <group position={[0, y, 0.14]}>
       {/* Real dark wooden beveled backing trim behind brass plaque for stunning tactile layering */}
-      <mesh position={[0, 0, -0.016]} castShadow>
+      <mesh position={[0, 0, -0.012]} castShadow>
         <boxGeometry args={[plaqueW + 0.14, 0.46, 0.04]} />
         <meshStandardMaterial color="#1a1008" roughness={0.85} />
       </mesh>
 
-      {/* Elegant burnished gold outer chamfer line */}
-      <mesh position={[0, 0, -0.006]} castShadow>
-        <boxGeometry args={[plaqueW + 0.04, 0.4, 0.028]} />
-        <primitive object={borderTrimMaterial} attach="material" />
-      </mesh>
-
-      {/* Main Solid Polished Brass Engraving Plate */}
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[plaqueW, 0.36, 0.022]} />
-        <primitive object={brassMaterial} attach="material" />
-      </mesh>
-
-      {/* High-definition engraved typography plane - pushed forward safely to ensure zero Z-fighting */}
-      <mesh position={[0, 0, 0.022]} castShadow receiveShadow>
-        <planeGeometry args={[plaqueW - 0.1, 0.28]} />
-        <meshStandardMaterial map={plaqueTexture} transparent={true} roughness={0.14} metalness={0.9} />
+      {/* Main Solid Polished Brass Engraving Plate with integrated sharp vector text overlay */}
+      <mesh position={[0, 0, 0.012]} castShadow receiveShadow>
+        <boxGeometry args={[plaqueW, 0.36, 0.024]} />
+        <meshStandardMaterial map={plaqueTexture} roughness={0.16} metalness={0.88} />
       </mesh>
     </group>
   );
@@ -305,43 +292,36 @@ function LuxuryOccasionPlaque({ text, y, displayW }: { text: string; y: number; 
 
 // Highly realistic premium modern-chic black acrylic & gold badge for nicknames / subtext
 function LuxuryNicknamePlaque({ text, y }: { text: string; y: number }) {
-  const plaqueBackMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#080809', // ultra-modern gloss-black mirror acrylic
-    roughness: 0.08,
-    metalness: 0.45,
-  }), []);
-
-  const borderTrimMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#e6bf5c', // luxurious high-polish golden border lining
-    roughness: 0.1,
-    metalness: 0.9,
-  }), []);
-
   const plaqueW = Math.max(1.8, Math.min(3.2, text.length * 0.12 + 0.6));
 
   const nicknameTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
-    canvas.height = 128;
+    canvas.height = 256;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.clearRect(0, 0, 1024, 128);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      // 1. Draw premium sleek gloss-black backdrop
+      ctx.fillStyle = '#0a0a0b';
+      ctx.fillRect(0, 0, 1024, 256);
 
-      // Chic sans-serif font
-      ctx.font = 'bold 48px sans-serif';
-      ctx.fillStyle = '#e6bf5c'; // premium gold foil look
+      // 2. Luxe gold-leaf inner coordinate frame border
+      ctx.strokeStyle = '#e6bf5c';
+      ctx.lineWidth = 14;
+      ctx.strokeRect(18, 18, 988, 220);
+
+      // 3. Draw clean sans-serif/slab font
+      ctx.font = 'bold 100px "Inter", "Helvetica", sans-serif';
+      ctx.fillStyle = '#e6bf5c'; // Premium gold leaf look
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      // 3D pop/highlight shadows
+      // Drop pop highlight micro-shadows
       ctx.shadowColor = '#000000';
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
-      ctx.shadowBlur = 3;
+      ctx.shadowOffsetX = 4;
+      ctx.shadowOffsetY = 4;
+      ctx.shadowBlur = 6;
 
-      ctx.fillText(text, 512, 64);
+      ctx.fillText(text.toUpperCase(), 512, 128);
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -352,22 +332,16 @@ function LuxuryNicknamePlaque({ text, y }: { text: string; y: number }) {
 
   return (
     <group position={[0, y, 0.14]}>
-      {/* Golden outer lining plate for premium double-layered look */}
-      <mesh position={[0, 0, -0.008]} castShadow>
-        <boxGeometry args={[plaqueW + 0.06, 0.38, 0.024]} />
-        <primitive object={borderTrimMaterial} attach="material" />
+      {/* Golden outer backing trim plate for double-layered look */}
+      <mesh position={[0, 0, -0.012]} castShadow>
+        <boxGeometry args={[plaqueW + 0.06, 0.38, 0.04]} />
+        <meshStandardMaterial color="#cca43b" roughness={0.12} metalness={0.9} />
       </mesh>
 
-      {/* Sleek beveled black acrylic badge plate */}
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[plaqueW, 0.34, 0.02]} />
-        <primitive object={plaqueBackMaterial} attach="material" />
-      </mesh>
-
-      {/* High-definition golden raised badge text plane - pushed forward safely to ensure zero Z-fighting */}
-      <mesh position={[0, 0, 0.021]} castShadow receiveShadow>
-        <planeGeometry args={[plaqueW - 0.1, 0.26]} />
-        <meshStandardMaterial map={nicknameTexture} transparent={true} roughness={0.08} metalness={0.4} />
+      {/* Sleek beveled black acrylic badge plate with integrated gold-foil crisp text */}
+      <mesh position={[0, 0, 0.01]} castShadow receiveShadow>
+        <boxGeometry args={[plaqueW, 0.34, 0.024]} />
+        <meshStandardMaterial map={nicknameTexture} roughness={0.08} metalness={0.45} />
       </mesh>
     </group>
   );
