@@ -35,7 +35,12 @@ export default function App() {
            setFrameConfig(config);
            setPhotoDataUrl(config.photoBase64 || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><rect width='400' height='400' fill='%23eee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif'>Please re-upload photo</text></svg>");
            addLog('system', `Restored existing custom diorama configuration ${restoreId}`);
+         } else {
+           addLog('system', `Diorama configuration ${restoreId} not found in database.`);
          }
+       }).catch((err) => {
+         console.error('Error loading config on restore:', err);
+         addLog('system', `Error: Failed to fetch configuration: ${err.message || err}`);
        }).finally(() => setIsGenerating(false));
     }
   }, []);
