@@ -643,7 +643,7 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
     if (photoTexture) {
       photoTexture.center.set(0.5, 0.5);
       const rot = config.photoRotation ?? 0;
-      photoTexture.rotation = (rot * Math.PI) / 1;
+      photoTexture.rotation = (rot * Math.PI) / 90;
       
       const scaleX = config.photoFlipH ? -1 : 1;
       const scaleY = config.photoFlipV ? -1 : 1;
