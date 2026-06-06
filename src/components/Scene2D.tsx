@@ -112,7 +112,7 @@ export default function Scene2D({ photoDataUrl, config }: Scene2DProps) {
         return 'border-[20px] border-[#573d26] bg-[#3e2b1b] shadow-[inset_0_2px_10px_rgba(255,255,255,0.15),_0_25px_55px_rgba(0,0,0,0.5),_0_5px_15px_rgba(0,0,0,0.3)]';
       case 'white':
       default:
-        return 'border-[20px] border-zinc-100 bg-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.05),_0_20px_50px_rgba(0,0,0,0.4)]';
+        return 'border-[20px] border-white bg-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.05),_0_20px_50px_rgba(0,0,0,0.4)]';
     }
   }, [config.frameStyle]);
 
@@ -165,7 +165,7 @@ export default function Scene2D({ photoDataUrl, config }: Scene2DProps) {
     <div className={
       isFullscreen 
         ? "fixed inset-0 z-50 bg-zinc-950 overflow-hidden flex flex-col h-screen w-screen justify-center items-center p-4 select-none touch-none"
-        : "w-full h-[75vh] bg-[radial-gradient(circle_at_50%_35%,_#fbf9f6_0%,_#e6e1d6_60%,_#c2bbb0_100%)] rounded-3xl overflow-hidden shadow-2xl relative flex items-center justify-center border border-zinc-200/40 p-4 select-none"
+        : "w-full h-[75vh] bg-white rounded-3xl overflow-hidden shadow-2xl relative flex items-center justify-center border border-zinc-200/40 p-4 select-none"
     }>
       
       {/* Viewport Control Buttons */}
@@ -300,11 +300,8 @@ export default function Scene2D({ photoDataUrl, config }: Scene2DProps) {
                 <img 
                   src={photoDataUrl} 
                   alt="Diorama center" 
-                  style={{ 
-                    transform: photoTransform,
-                    filter: `brightness(${config.photoBrightness ?? 1.0})`
-                  }}
-                  className="w-full h-full object-cover select-none pointer-events-none transition-all duration-300" 
+                  style={{ transform: photoTransform }}
+                  className="w-full h-full object-cover select-none pointer-events-none transition-transform duration-300" 
                   referrerPolicy="no-referrer"
                 />
               ) : (

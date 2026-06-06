@@ -68,7 +68,7 @@ function useSafeTexture(url: string | null) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.flipY = true; // Use standard flipY to correctly orient uploaded photos
+        tex.flipY = false; // Set to false to correctly orient ImageBitmap uploaded photos (preventing them from being upside-down by default)
         
         // Skip heavy synchronous CPU-bound mipmap calculations to achieve instant load
         tex.generateMipmaps = false; 
@@ -162,7 +162,7 @@ function HandheldFloat({ children, speed = 1, rotationIntensity = 1, floatIntens
 
 // Deep white, black or timber shadowbox walls
 function WoodenBoxFrame({ outerW, outerH, rimThickness, rimDepth, style }: { outerW: number, outerH: number, rimThickness: number, rimDepth: number, style: string }) {
-  const color = style === 'white' ? '#fbfbfa' : style === 'black' ? '#141416' : '#573d26';
+  const color = style === 'white' ? '#ffffff' : style === 'black' ? '#141416' : '#573d26';
   const roughness = style === 'wood' ? 0.85 : 0.22;
   
   const material = useMemo(() => new THREE.MeshStandardMaterial({
@@ -878,13 +878,7 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
         <mesh key={photoTexture ? photoTexture.uuid : 'loading'} castShadow receiveShadow position={[0, 0.15, 0.035]}>
           <planeGeometry args={[displayW, displayH]} />
           {photoTexture ? (
-            <meshStandardMaterial 
-              map={photoTexture} 
-              toneMapped={true} 
-              roughness={0.35} 
-              side={THREE.DoubleSide} 
-              color={[config.photoBrightness ?? 1.0, config.photoBrightness ?? 1.0, config.photoBrightness ?? 1.0]} 
-            />
+            <meshStandardMaterial map={photoTexture} toneMapped={true} roughness={0.35} side={THREE.DoubleSide} />
           ) : (
             <meshStandardMaterial color="#faf6f0" roughness={0.5} side={THREE.DoubleSide} />
           )}
@@ -1007,7 +1001,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
       className={
         isFullscreen 
           ? "fixed inset-0 z-50 bg-zinc-950 overflow-hidden cursor-grab active:cursor-grabbing flex flex-col h-screen w-screen"
-          : "w-full h-[75vh] bg-[radial-gradient(circle_at_50%_35%,_#fbf9f6_0%,_#e6e1d6_60%,_#c2bbb0_100%)] rounded-3xl overflow-hidden shadow-2xl relative cursor-grab active:cursor-grabbing border border-zinc-200/40"
+          : "w-full h-[75vh] bg-white rounded-3xl overflow-hidden shadow-2xl relative cursor-grab active:cursor-grabbing border border-zinc-200/40"
       }
     >
       
@@ -1106,7 +1100,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         {/* Tactile real physical exhibition background wall receiving the soft drop-shadow of the sway and orbit */}
         <mesh position={[0, 0, -1.8]} receiveShadow={!isMobile}>
           <planeGeometry args={[18, 14]} />
-          <meshStandardMaterial color="#f4f1e8" roughness={0.9} metalness={0.03} />
+          <meshStandardMaterial color="#ffffff" roughness={0.9} metalness={0.03} />
         </mesh>
 
         {/* Stable 3D placement at a classy starting angle */}

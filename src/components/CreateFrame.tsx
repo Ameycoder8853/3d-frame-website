@@ -13,7 +13,7 @@ export default function CreateFrame({ onGenerate, isLoading }: CreateFrameProps)
   const [nickname, setNickname] = useState('');
   const [likes, setLikes] = useState('');
   const [peripheral, setPeripheral] = useState('standee');
-  const [bgColor, setBgColor] = useState('#004f99');
+  const [bgColor, setBgColor] = useState('#ffffff');
   const [layoutStyle, setLayoutStyle] = useState<'editorial' | 'collage' | 'minimalist' | 'bento'>('editorial');
   const [quote, setQuote] = useState('');
 

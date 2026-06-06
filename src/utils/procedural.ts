@@ -32,7 +32,7 @@ export function generateProceduralFrame(
   layoutStyle: 'editorial' | 'collage' | 'minimalist' | 'bento' = 'editorial',
   quote?: string
 ): FrameConfig {
-  const background = bgColor || '#fdf6e2'; // warm gold/ivory parchment
+  const background = bgColor || '#ffffff'; // white shadowbox background by default
   const parsedLikes = (likes || '').toLowerCase();
   const ledColor = '#ffb347'; // gorgeous warm sunset glow
   
