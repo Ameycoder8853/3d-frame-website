@@ -46,7 +46,7 @@ function generateProceduralFrame(
   layoutStyle: 'editorial' | 'collage' | 'minimalist' | 'bento' = 'editorial',
   quote?: string
 ) {
-  const background = bgColor || '#fdf6e2'; // warm gold/ivory parchment
+  const background = '#ffffff'; // Force white shadowbox background by default as requested
   const parsedLikes = (likes || '').toLowerCase();
   const ledColor = '#ffb347'; // gorgeous warm sunset glow
   
@@ -512,6 +512,10 @@ async function startServer() {
       frameConfig.peripheral = peripheral || 'standee';
       frameConfig.layoutStyle = layoutStyle || 'editorial';
       frameConfig.quote = computedFallback.quote;
+
+      // Enforce white design choices as requested
+      frameConfig.backgroundColor = '#ffffff';
+      frameConfig.frameStyle = 'white';
 
       res.json(frameConfig);
     } catch (error: any) {

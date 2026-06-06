@@ -68,7 +68,7 @@ function useSafeTexture(url: string | null) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.flipY = false; // Set to false to correctly orient ImageBitmap uploaded photos (preventing them from being upside-down by default)
+        tex.flipY = true; // Set to true to correctly orient the uploaded image in Three.js coordinate space
         
         // Skip heavy synchronous CPU-bound mipmap calculations to achieve instant load
         tex.generateMipmaps = false; 
@@ -643,7 +643,7 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
     if (photoTexture) {
       photoTexture.center.set(0.5, 0.5);
       const rot = config.photoRotation ?? 0;
-      photoTexture.rotation = (rot * Math.PI) / 90;
+      photoTexture.rotation = (rot * Math.PI) / 180;
       
       const scaleX = config.photoFlipH ? -1 : 1;
       const scaleY = config.photoFlipV ? -1 : 1;
