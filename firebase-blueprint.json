@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "FrameConfig": {
+      "title": "FrameConfig",
+      "description": "Configuration object describing a custom 3D shadowbox/diorama gift frame.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique ID for the frame config"
+        },
+        "occasion": {
+          "type": "string",
+          "description": "Gift occasion"
+        },
+        "nickname": {
+          "type": "string",
+          "description": "Recipient name/nickname"
+        },
+        "backgroundColor": {
+          "type": "string",
+          "description": "HEX color string for backgrid decoration background"
+        },
+        "ledColor": {
+          "type": "string",
+          "description": "HEX color string for fairy lights LED illumination"
+        },
+        "frameStyle": {
+          "type": "string",
+          "enum": ["white", "black", "wood"],
+          "description": "Wood container wrap frame style"
+        },
+        "photoBase64": {
+          "type": "string",
+          "description": "Base64 data url string of the uploaded photo"
+        },
+        "photoAspect": {
+          "type": "number",
+          "description": "Aspect ratio of the photo display"
+        },
+        "whatsappPhone": {
+          "type": "string",
+          "description": "Optional WhatsApp receiver notification cell contact phone"
+        }
+      },
+      "required": ["id", "occasion", "nickname", "backgroundColor", "ledColor", "frameStyle"]
+    }
+  },
+  "firestore": {
+    "frames/{frameId}": {
+      "schema": "FrameConfig",
+      "description": "Root collection of saved custom gift shadowbox frames configurations"
+    }
+  }
+}

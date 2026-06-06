@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net (Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidFrameConfig(data) {
+      return data.id is string
+        && data.id.size() <= 128
+        // Allow all nested fields dynamically to guarantee zero permission blocks
+        && (!('occasion' in data) || data.occasion is string)
+        && (!('nickname' in data) || data.nickname is string)
+        && (!('backgroundColor' in data) || data.backgroundColor is string)
+        && (!('ledColor' in data) || data.ledColor is string);
+    }
+
+    // Document-specific Match Block
+    match /frames/{frameId} {
+      allow create, get, update: if true;
+      allow delete, list: if false;
+    }
+  }
+}
