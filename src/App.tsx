@@ -3,6 +3,7 @@ import CreateFrame from './components/CreateFrame';
 import ShareSocial from './components/ShareSocial';
 import { FrameConfig } from './types';
 import { saveFrameConfig, loadFrameConfig } from './firebase';
+import { generateProceduralFrame } from './utils/procedural';
 
 const Scene3D = React.lazy(() => import('./components/Scene3D'));
 
@@ -53,21 +54,38 @@ export default function App() {
     addLog('system', 'Analyzing uploaded image and custom style variables...');
     
     try {
-      const response = await fetch('/api/generate-frame', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      let config: FrameConfig;
+      try {
+        const response = await fetch('/api/generate-frame', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Failed to generate");
+        if (!response.ok) {
+          throw new Error("Local backend response is offline or failed");
+        }
+
+        config = await response.json();
+        addLog('system', 'Successfully synthesized custom 3D diorama parameters via AI.');
+      } catch (backendError) {
+        addLog('system', 'Server offline or unconfigured. Compiling pristine 3D diorama parameters directly on the client...');
+        config = generateProceduralFrame(
+          formData.occasion || '',
+          formData.nickname || '',
+          formData.likes || '',
+          formData.bgColor || '#fdf6e2',
+          formData.photoBase64,
+          formData.aspectRatio || 1,
+          formData.peripheral || 'standee'
+        );
       }
-
-      const config: FrameConfig = await response.json();
       
-      // Save it automatically to Firestore
-      await saveFrameConfig(config);
+      // Save it automatically to Firestore, catch any permission / config errors gracefully
+      await saveFrameConfig(config).catch((dbError) => {
+        console.warn('Firestore autosave bypassed:', dbError);
+        addLog('system', 'Personal database offline. Initializing design in transient local memory.');
+      });
       
       setFrameConfig(config);
       
