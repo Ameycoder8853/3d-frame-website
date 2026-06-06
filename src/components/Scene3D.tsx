@@ -68,6 +68,7 @@ function useSafeTexture(url: string | null) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
+        tex.flipY = false; // Prevent ImageBitmap from mapping upside-down in ThreeJS WebGL view
         
         // Skip heavy synchronous CPU-bound mipmap calculations to achieve instant load
         tex.generateMipmaps = false; 
@@ -482,9 +483,6 @@ function FairyLightsChain({ outerW, outerH, rimDepth, ledColor, isMobile }: { ou
     return list;
   }, [outerW, outerH, rimDepth, isMobile]);
 
-  // Disable pointLights completely on mobile to sustain clean performance framerate
-  const lightFrequency = isMobile ? 0 : 4;
-
   return (
     <group>
       {points.map((p, i) => (
@@ -494,20 +492,11 @@ function FairyLightsChain({ outerW, outerH, rimDepth, ledColor, isMobile }: { ou
             <meshStandardMaterial 
               color={ledColor} 
               emissive={ledColor} 
-              emissiveIntensity={1.5} 
+              emissiveIntensity={0.8} // Dimmed emissive for a subtle, natural bioluminescent or neon vibe
               roughness={0.1}
               metalness={0.1}
             />
           </mesh>
-          {lightFrequency > 0 && i % lightFrequency === 0 && (
-            <pointLight
-              color={ledColor}
-              intensity={0.22}
-              distance={1.4}
-              decay={2}
-              castShadow={false}
-            />
-          )}
         </group>
       ))}
     </group>
@@ -891,13 +880,13 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         className="z-10 relative"
       >
         {/* Direct Ambient baseline lighting fill */}
-        <ambientLight intensity={0.15} />
+        <ambientLight intensity={0.10} />
         
         {/* Gallery Spotlighting casting elegant hard shadows */}
         <directionalLight 
           castShadow={!isMobile} 
           position={[3.0, 4.5, 3.5]} 
-          intensity={0.8} 
+          intensity={0.45} 
           shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
           shadow-bias={-0.00015}
         />
@@ -905,13 +894,13 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         {/* Beautiful subtle filling flash from bottom-left room bounces */}
         <directionalLight 
           position={[-3, -3, 2]} 
-          intensity={0.12} 
+          intensity={0.06} 
         />
 
         {/* Front-facing head-on soft key fill light specifically to keep text elements, titles, and nickname plates illuminated at any angle */}
         <directionalLight 
           position={[0, 0, 5.0]} 
-          intensity={0.2} 
+          intensity={0.12} 
           castShadow={false}
         />
 
@@ -960,7 +949,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
           <Bloom 
             luminanceThreshold={0.95} 
             luminanceSmoothing={0.85} 
-            intensity={0.90} 
+            intensity={0.30} 
             mipmapBlur
           />
         </EffectComposer>
