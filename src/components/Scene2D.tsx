@@ -103,18 +103,10 @@ export default function Scene2D({ photoDataUrl, config }: Scene2DProps) {
     };
   };
 
-  // Frame outer border classes based on style preference
+  // Frame outer border classes based on style preference: forced to white as requested by user
   const frameBorderClass = useMemo(() => {
-    switch (config.frameStyle) {
-      case 'black':
-        return 'border-[20px] border-zinc-900 bg-zinc-950 shadow-[inset_0_2px_10px_rgba(255,255,255,0.1),_0_20px_50px_rgba(0,0,0,0.6)]';
-      case 'wood':
-        return 'border-[20px] border-[#573d26] bg-[#3e2b1b] shadow-[inset_0_2px_10px_rgba(255,255,255,0.15),_0_25px_55px_rgba(0,0,0,0.5),_0_5px_15px_rgba(0,0,0,0.3)]';
-      case 'white':
-      default:
-        return 'border-[20px] border-white bg-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.05),_0_20px_50px_rgba(0,0,0,0.4)]';
-    }
-  }, [config.frameStyle]);
+    return 'border-[20px] border-white bg-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.05),_0_20px_50px_rgba(0,0,0,0.4)]';
+  }, []);
 
   // Occasion/Celebration Mapping
   const celebrationHeader = useMemo(() => {
@@ -210,8 +202,8 @@ export default function Scene2D({ photoDataUrl, config }: Scene2DProps) {
         {/* Fabric Backboard inside frame */}
          <div 
           style={{
-            backgroundColor: config.backgroundColor || '#fdf6e2',
-            backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0) 30%, rgba(0,0,0,0.25) 100%)',
+            backgroundColor: '#ffffff',
+            backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0) 30%, rgba(0,0,0,0.12) 100%)',
             ...ledBackglowStyle
           }}
           className="absolute inset-0 rounded-sm overflow-hidden flex flex-col justify-between p-4 transition-colors duration-300"

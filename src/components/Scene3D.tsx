@@ -68,7 +68,7 @@ function useSafeTexture(url: string | null) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.flipY = true; // Set to true to correctly orient the uploaded image in Three.js coordinate space
+        tex.flipY = false; // Set to false to prevent ImageBitmap textures from being flipped upside-down by default
         
         // Skip heavy synchronous CPU-bound mipmap calculations to achieve instant load
         tex.generateMipmaps = false; 
@@ -160,16 +160,16 @@ function HandheldFloat({ children, speed = 1, rotationIntensity = 1, floatIntens
   return <group ref={ref} {...props}>{children}</group>;
 }
 
-// Deep white, black or timber shadowbox walls
+// Deep white, black or timber shadowbox walls - forced to white as requested by user
 function WoodenBoxFrame({ outerW, outerH, rimThickness, rimDepth, style }: { outerW: number, outerH: number, rimThickness: number, rimDepth: number, style: string }) {
-  const color = style === 'white' ? '#ffffff' : style === 'black' ? '#141416' : '#573d26';
-  const roughness = style === 'wood' ? 0.85 : 0.22;
+  const color = '#ffffff'; // Always pristine white
+  const roughness = 0.22;
   
   const material = useMemo(() => new THREE.MeshStandardMaterial({
     color,
     roughness,
-    metalness: style === 'black' ? 0.2 : 0.02,
-  }), [color, roughness, style]);
+    metalness: 0.05,
+  }), [color, roughness]);
 
   return (
     <group>
@@ -663,10 +663,10 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
   const useHighFidelity = isInitialized && !isMobile;
 
   const backingMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: config.backgroundColor || '#faf7ec', 
+    color: '#ffffff', // Always pristine white backboard
     roughness: useHighFidelity ? 0.95 : 0.8,
     metalness: useHighFidelity ? 0.02 : 0.0,
-  }), [config.backgroundColor, useHighFidelity]);
+  }), [useHighFidelity]);
 
   const glassMaterial = useMemo(() => {
     return new THREE.MeshStandardMaterial({
@@ -1053,20 +1053,20 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
           antialias: !isMobile, 
           precision: isMobile ? 'mediump' : 'highp',
           toneMapping: THREE.ACESFilmicToneMapping, 
-          toneMappingExposure: 0.16, // Lowered exposure significantly to reduce over-brightness
+          toneMappingExposure: 0.95, // Warm, bright standard exposure to keep the white frame and elements crisp
           alpha: true,
           preserveDrawingBuffer: true
         }}
         className="z-10 relative"
       >
         {/* Direct Ambient baseline lighting fill */}
-        <ambientLight intensity={0.015} /> {/* Reduced from 0.03 for standard dark-room elegance */}
+        <ambientLight intensity={0.4} /> {/* Bright soft ambient fill */}
         
         {/* Gallery Spotlighting casting elegant hard shadows */}
         <directionalLight 
           castShadow={!isMobile} 
           position={[3.0, 4.5, 3.5]} 
-          intensity={0.06} // Reduced intensity from 0.20 to prevent washed-out look
+          intensity={0.7} // Standard spotlight intensity to bring out pristine details
           shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
           shadow-bias={-0.00015}
         />
@@ -1074,16 +1074,16 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         {/* Beautiful subtle filling flash from bottom-left room bounces */}
         <directionalLight 
           position={[-3, -3, 2]} 
-          intensity={0.01} // Softened back/bounce light
+          intensity={0.15} // Rich soft back/bounce light
         />
-
+ 
         {/* Front-facing head-on soft key fill light specifically to keep text elements, titles, and nickname plates illuminated at any angle */}
         <directionalLight 
           position={[0, 0, 5.0]} 
-          intensity={0.015} // Low key fill instead of harsh highlight
+          intensity={0.25} // Low key fill to ensure pristine text visibility
           castShadow={false}
         />
-
+ 
         <OrbitControls 
           makeDefault 
           enableZoom={true} 
@@ -1091,16 +1091,16 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
           minDistance={3.5} 
           maxDistance={8} 
         />
-
+ 
         <Suspense fallback={null}>
           {/* Static HDRI environment lookup to achieve extremely elegant, crisp physical lighting */}
-          <Environment preset="apartment" environmentIntensity={0.15} />
+          <Environment preset="apartment" environmentIntensity={0.25} />
         </Suspense>
-
+ 
         {/* Tactile real physical exhibition background wall receiving the soft drop-shadow of the sway and orbit */}
-        <mesh position={[0, 0, -1.8]} receiveShadow={!isMobile}>
+        <mesh position={[0, 0, -1.8]}>
           <planeGeometry args={[18, 14]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.9} metalness={0.03} />
+          <meshBasicMaterial color="#ffffff" /> {/* Force background wall of the 3D diorama canvas to be solid white */}
         </mesh>
 
         {/* Stable 3D placement at a classy starting angle */}
