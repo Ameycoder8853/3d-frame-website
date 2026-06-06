@@ -163,9 +163,14 @@ function AcrylicToken3D({ name, emoji, position, scale, rotation }: any) {
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.clearRect(0, 0, 512, 512);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      // Draw solid crisp white background to prevent under-glare overlay bugs
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Gold frame outer trim
+      ctx.strokeStyle = '#cca43b';
+      ctx.lineWidth = 14;
+      ctx.strokeRect(7, 7, 498, 498);
 
       // Draw Emoji
       ctx.font = '220px sans-serif';
@@ -182,6 +187,8 @@ function AcrylicToken3D({ name, emoji, position, scale, rotation }: any) {
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearFilter;
+    texture.needsUpdate = true;
     return texture;
   }, [name, emoji]);
 
@@ -199,14 +206,14 @@ function AcrylicToken3D({ name, emoji, position, scale, rotation }: any) {
         <primitive object={tokenBackMaterial} attach="material" />
       </mesh>
 
-      {/* High-resolution printed custom graphics plate */}
-      <mesh position={[0, 0, 0.102]} castShadow receiveShadow>
+      {/* High-resolution printed custom graphics plate - elevated safely to prevent flat surface Z-fighting */}
+      <mesh position={[0, 0, 0.12]} castShadow receiveShadow>
         <planeGeometry args={[3.1, 3.1]} />
-        <meshStandardMaterial map={textTexture} transparent={true} roughness={0.15} metalness={0.05} />
+        <meshStandardMaterial map={textTexture} transparent={false} roughness={0.15} metalness={0.05} />
       </mesh>
       
       {/* Clear reflective glass panel overlay */}
-      <mesh position={[0, 0, 0.11]}>
+      <mesh position={[0, 0, 0.13]}>
         <boxGeometry args={[3.25, 3.25, 0.05]} />
         <meshPhysicalMaterial 
           color="#ffffff"
@@ -251,7 +258,6 @@ function LuxuryOccasionPlaque({ text, y, displayW }: { text: string; y: number; 
       ctx.fillStyle = '#161005'; // oxidized deep charcoal
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.letterSpacing = '5px';
       
       // Engraving physical micro-relief shadow styling
       ctx.shadowColor = '#ffffff';
@@ -263,6 +269,8 @@ function LuxuryOccasionPlaque({ text, y, displayW }: { text: string; y: number; 
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearFilter;
+    texture.needsUpdate = true;
     return texture;
   }, [text]);
 
@@ -286,8 +294,8 @@ function LuxuryOccasionPlaque({ text, y, displayW }: { text: string; y: number; 
         <primitive object={brassMaterial} attach="material" />
       </mesh>
 
-      {/* High-definition engraved typography plane */}
-      <mesh position={[0, 0, 0.012]} castShadow receiveShadow>
+      {/* High-definition engraved typography plane - pushed forward safely to ensure zero Z-fighting */}
+      <mesh position={[0, 0, 0.022]} castShadow receiveShadow>
         <planeGeometry args={[plaqueW - 0.1, 0.28]} />
         <meshStandardMaterial map={plaqueTexture} transparent={true} roughness={0.14} metalness={0.9} />
       </mesh>
@@ -326,7 +334,6 @@ function LuxuryNicknamePlaque({ text, y }: { text: string; y: number }) {
       ctx.fillStyle = '#e6bf5c'; // premium gold foil look
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.letterSpacing = '3px';
 
       // 3D pop/highlight shadows
       ctx.shadowColor = '#000000';
@@ -338,6 +345,8 @@ function LuxuryNicknamePlaque({ text, y }: { text: string; y: number }) {
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearFilter;
+    texture.needsUpdate = true;
     return texture;
   }, [text]);
 
@@ -355,8 +364,8 @@ function LuxuryNicknamePlaque({ text, y }: { text: string; y: number }) {
         <primitive object={plaqueBackMaterial} attach="material" />
       </mesh>
 
-      {/* High-definition golden raised badge text plane */}
-      <mesh position={[0, 0, 0.011]} castShadow receiveShadow>
+      {/* High-definition golden raised badge text plane - pushed forward safely to ensure zero Z-fighting */}
+      <mesh position={[0, 0, 0.021]} castShadow receiveShadow>
         <planeGeometry args={[plaqueW - 0.1, 0.26]} />
         <meshStandardMaterial map={nicknameTexture} transparent={true} roughness={0.08} metalness={0.4} />
       </mesh>
@@ -553,7 +562,6 @@ function Frame3D({ photoDataUrl, config }: { photoDataUrl: string, config: Frame
       ctx.fillStyle = '#cca43b'; // luxury gold leaf color
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.letterSpacing = '6px';
 
       // Add a subtle gold embossing highlight/indentation shadow
       ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
@@ -565,6 +573,8 @@ function Frame3D({ photoDataUrl, config }: { photoDataUrl: string, config: Frame
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearFilter;
+    texture.needsUpdate = true;
     return texture;
   }, [celebrationHeader]);
 
