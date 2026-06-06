@@ -1,6 +1,7 @@
 import React, { Suspense, useMemo, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { FrameConfig, MiniPolaroid, RoseDecoration, CompartmentItem } from '../types';
@@ -160,23 +161,14 @@ function AcrylicToken3D({ name, emoji, position, scale, rotation, isMobile, isIn
   }), [useHighFidelity]);
 
   const tokenGlassMaterial = useMemo(() => {
-    if (useHighFidelity) {
-      return new THREE.MeshPhysicalMaterial({ 
-        color: "#ffffff",
-        transmission: 0.9,
-        transparent: true,
-        opacity: 0.15,
-        roughness: 0.05,
-      });
-    } else {
-      return new THREE.MeshStandardMaterial({
-        color: "#ffffff",
-        transparent: true,
-        opacity: 0.12,
-        roughness: 0.2,
-        depthWrite: false,
-      });
-    }
+    return new THREE.MeshStandardMaterial({
+      color: "#ffffff",
+      transparent: true,
+      opacity: useHighFidelity ? 0.16 : 0.12,
+      roughness: useHighFidelity ? 0.05 : 0.2,
+      metalness: useHighFidelity ? 0.25 : 0.0,
+      depthWrite: !useHighFidelity,
+    });
   }, [useHighFidelity]);
 
   const textTexture = useMemo(() => {
@@ -431,7 +423,13 @@ function FairyLightsChain({ outerW, outerH, rimDepth, ledColor, isMobile }: { ou
         <group key={i} position={p}>
           <mesh>
             <sphereGeometry args={[0.022, isMobile ? 4 : 8, isMobile ? 4 : 8]} />
-            <meshBasicMaterial color={ledColor} />
+            <meshStandardMaterial 
+              color={ledColor} 
+              emissive={ledColor} 
+              emissiveIntensity={3.5} 
+              roughness={0.1}
+              metalness={0.1}
+            />
           </mesh>
           {lightFrequency > 0 && i % lightFrequency === 0 && (
             <pointLight
@@ -501,26 +499,14 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
   }), [config.backgroundColor, useHighFidelity]);
 
   const glassMaterial = useMemo(() => {
-    if (useHighFidelity) {
-      return new THREE.MeshPhysicalMaterial({
-        color: '#ffffff',
-        metalness: 0.1,
-        roughness: 0.05,
-        transmission: 0.99,
-        transparent: true,
-        opacity: 0.04, 
-        ior: 1.1,
-      });
-    } else {
-      // Cheap proxy glass on mobile or prior to full initialization to avoid expensive refractive layers
-      return new THREE.MeshStandardMaterial({
-        color: '#ffffff',
-        roughness: 0.2,
-        transparent: true,
-        opacity: 0.08,
-        depthWrite: false,
-      });
-    }
+    return new THREE.MeshStandardMaterial({
+      color: '#ffffff',
+      roughness: useHighFidelity ? 0.05 : 0.2,
+      metalness: useHighFidelity ? 0.15 : 0.0,
+      transparent: true,
+      opacity: useHighFidelity ? 0.06 : 0.08,
+      depthWrite: !useHighFidelity,
+    });
   }, [useHighFidelity]);
 
   const luxuryPlasterMaterial = useMemo(() => new THREE.MeshStandardMaterial({
@@ -900,6 +886,16 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
             resolution={256} 
           />
         )}
+
+        {/* Cinematic high-end Bloom post-processing to make sunset fairylights warm and atmospheric */}
+        <EffectComposer enableNormalPass={false}>
+          <Bloom 
+            luminanceThreshold={0.95} 
+            luminanceSmoothing={0.85} 
+            intensity={1.3} 
+            mipmapBlur
+          />
+        </EffectComposer>
       </Canvas>
       
       {/* Specifications Overlay Badge */}

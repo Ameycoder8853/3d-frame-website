@@ -11,13 +11,32 @@ interface SceneHybridProps {
 }
 
 export default function SceneHybrid({ photoDataUrl, config }: SceneHybridProps) {
-  const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
+  const [viewMode, setViewMode] = useState<'2d' | '3d'>(() => {
+    if (typeof window !== 'undefined') {
+      const savedPreference = localStorage.getItem('shadowbox_viewport_pref');
+      if (savedPreference === '2d' || savedPreference === '3d') {
+        return savedPreference;
+      }
+      const ua = navigator.userAgent || '';
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      
+      let isSlowConn = false;
+      const conn = (navigator as any).connection;
+      if (conn) {
+        if (conn.saveData || ['slow-2g', '2g', '3g'].includes(conn.effectiveType)) {
+          isSlowConn = true;
+        }
+      }
+      return isMobileDevice || isSlowConn ? '2d' : '3d';
+    }
+    return '3d';
+  });
   const [deviceDetails, setDeviceDetails] = useState({ isMobile: false, isSlow: false });
 
   useEffect(() => {
-    // 1. Detect mobile operating systems or slow screen widths
+    // 1. Detect actual mobile operating systems without classifying small desktop window/iframes as mobile
     const ua = navigator.userAgent || '';
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || window.innerWidth < 768;
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
 
     // 2. Detect slow 4G or data-saver modes
     let isSlowConn = false;
@@ -29,16 +48,6 @@ export default function SceneHybrid({ photoDataUrl, config }: SceneHybridProps) 
     }
 
     setDeviceDetails({ isMobile: isMobileDevice, isSlow: isSlowConn });
-
-    // 3. Auto-select 2D view by default on Mobile/Slow connections to ensure a gorgeous 60fps experience
-    // Otherwise fallback to 3D for high-spec desktop browsers
-    const savedPreference = localStorage.getItem('shadowbox_viewport_pref');
-    if (savedPreference === '2d' || savedPreference === '3d') {
-      setViewMode(savedPreference);
-    } else {
-      const defaultMode = isMobileDevice || isSlowConn ? '2d' : '3d';
-      setViewMode(defaultMode);
-    }
   }, []);
 
   const handleModeChange = (mode: '2d' | '3d') => {
