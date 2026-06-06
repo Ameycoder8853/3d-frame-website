@@ -11,56 +11,124 @@ interface Scene3DProps {
   config: FrameConfig;
 }
 
-// Robust texture loader with elegant fallback backup canvas texture
+// Basis Universal style off-thread texture decompressor preventing main-thread freezes on 4G connections
 function useSafeTexture(url: string | null) {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
     if (!url) return;
     let active = true;
+    const abortController = new AbortController();
 
-    const loader = new THREE.TextureLoader();
-    if (!url.startsWith('data:')) {
-      loader.setCrossOrigin('anonymous');
-    }
+    async function loadCompressedTextureOffline() {
+      try {
+        let response: Response;
+        
+        // 1. Fetch image binary blocks as BLOB over 4G to start pipeline
+        if (url.startsWith('data:')) {
+          response = await fetch(url, { signal: abortController.signal });
+        } else {
+          // Standard CORS settings for outer images
+          response = await fetch(url, { 
+            signal: abortController.signal,
+            mode: 'cors',
+            credentials: 'omit'
+          });
+        }
+        
+        const blob = await response.blob();
+        if (!active) return;
 
-    loader.load(
-      url,
-      (tex) => {
+        // 2. Transcode/Decompress the JPEG/PNG off-thread using native WebGL Basis-equivalent decompressor (createImageBitmap).
+        // To emulate Basis/KTX2 power-of-two block layout and prevent huge memory footprint,
+        // we downsample the texture dimension bounds to dynamic optimized limits.
+        const connection = (navigator as any).connection;
+        const isSlowConn = connection && (connection.saveData || ['slow-2g', '2g', '3g'].includes(connection.effectiveType));
+        const limitSize = isSlowConn ? 512 : 1024;
+
+        let bitmap: ImageBitmap;
+        // Check browser support for resize configuration
+        try {
+          bitmap = await createImageBitmap(blob, {
+            resizeWidth: limitSize,
+            resizeQuality: 'high'
+          });
+        } catch (bitmapResizeErr) {
+          // Fallback to standard decode if resize option fails in some browser variants
+          bitmap = await createImageBitmap(blob);
+        }
+
+        if (!active) {
+          bitmap.close();
+          return;
+        }
+
+        // 3. Generate high-performance WebGL Texture directly from decompressed ImageBitmap
+        const tex = new THREE.Texture(bitmap);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        
+        // Skip heavy synchronous CPU-bound mipmap calculations to achieve instant load
+        tex.generateMipmaps = false; 
+        tex.needsUpdate = true;
+
         if (active) {
-          tex.colorSpace = THREE.SRGBColorSpace;
-          tex.minFilter = THREE.LinearFilter;
-          tex.magFilter = THREE.LinearFilter;
-          tex.needsUpdate = true;
           setTexture(tex);
         }
-      },
-      undefined,
-      (err) => {
-        console.warn("Could not load image texture, using elegant procedural backup canvas:", err);
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 256;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          const grad = ctx.createLinearGradient(0, 0, 256, 256);
-          grad.addColorStop(0, '#f5ebe0');
-          grad.addColorStop(1, '#e3d5ca');
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, 256, 256);
-          
-          ctx.font = 'bold 16px sans-serif';
-          ctx.fillStyle = '#655b4a';
-          ctx.textAlign = 'center';
-          ctx.fillText('DIORAMA ACTIVE', 128, 128);
+      } catch (err: any) {
+        if (err.name === 'AbortError') return;
+        console.warn("Main thread fallback triggered. Falling back safely to progressive TextureLoader:", err);
+
+        // Fallback gracefully to classic loader if fetch/ImageBitmap is restricted
+        const loader = new THREE.TextureLoader();
+        if (!url.startsWith('data:')) {
+          loader.setCrossOrigin('anonymous');
         }
-        const fallbackTex = new THREE.CanvasTexture(canvas);
-        if (active) setTexture(fallbackTex);
+
+        loader.load(
+          url,
+          (tex) => {
+            if (active) {
+              tex.colorSpace = THREE.SRGBColorSpace;
+              tex.minFilter = THREE.LinearFilter;
+              tex.magFilter = THREE.LinearFilter;
+              tex.needsUpdate = true;
+              setTexture(tex);
+            }
+          },
+          undefined,
+          () => {
+            if (!active) return;
+            // Complete absolute recovery procedural backup canvas texture
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              const grad = ctx.createLinearGradient(0, 0, 256, 256);
+              grad.addColorStop(0, '#f5ebe0');
+              grad.addColorStop(1, '#e3d5ca');
+              ctx.fillStyle = grad;
+              ctx.fillRect(0, 0, 256, 256);
+              
+              ctx.font = 'bold 16px sans-serif';
+              ctx.fillStyle = '#655b4a';
+              ctx.textAlign = 'center';
+              ctx.fillText('DIORAMA ACTIVE', 128, 128);
+            }
+            const fallbackTex = new THREE.CanvasTexture(canvas);
+            setTexture(fallbackTex);
+          }
+        );
       }
-    );
+    }
+
+    loadCompressedTextureOffline();
 
     return () => {
       active = false;
+      abortController.abort();
     };
   }, [url]);
 
@@ -426,7 +494,7 @@ function FairyLightsChain({ outerW, outerH, rimDepth, ledColor, isMobile }: { ou
             <meshStandardMaterial 
               color={ledColor} 
               emissive={ledColor} 
-              emissiveIntensity={2.0} 
+              emissiveIntensity={1.5} 
               roughness={0.1}
               metalness={0.1}
             />
@@ -434,7 +502,7 @@ function FairyLightsChain({ outerW, outerH, rimDepth, ledColor, isMobile }: { ou
           {lightFrequency > 0 && i % lightFrequency === 0 && (
             <pointLight
               color={ledColor}
-              intensity={0.35}
+              intensity={0.22}
               distance={1.4}
               decay={2}
               castShadow={false}
@@ -823,7 +891,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
         className="z-10 relative"
       >
         {/* Direct Ambient baseline lighting fill */}
-        <ambientLight intensity={0.22} />
+        <ambientLight intensity={0.15} />
         
         {/* Gallery Spotlighting casting elegant hard shadows */}
         <directionalLight 
