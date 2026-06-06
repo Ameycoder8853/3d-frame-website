@@ -1094,7 +1094,7 @@ export default function Scene3D({ photoDataUrl, config }: Scene3DProps) {
 
         <Suspense fallback={null}>
           {/* Static HDRI environment lookup to achieve extremely elegant, crisp physical lighting */}
-          <Environment preset="apartment" />
+          <Environment preset="apartment" environmentIntensity={0.15} />
         </Suspense>
 
         {/* Tactile real physical exhibition background wall receiving the soft drop-shadow of the sway and orbit */}

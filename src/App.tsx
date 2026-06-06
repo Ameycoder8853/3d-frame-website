@@ -159,13 +159,13 @@ export default function App() {
                  </Suspense>
 
                  {/* Dynamic Photo Alignment adjustment panel */}
-                  <div className="hidden">
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="text-left w-full md:w-auto">
                       <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
-                        <span>📐</span> Hidden Adjustments
+                        <span>📐</span> Straighten & Rotate Photo
                       </h4>
                       <p className="text-xs text-zinc-500 mt-1">
-                        Instantly rotate or flip your photo to orient it perfectly upright in both 2D and 3D views.
+                        If your uploaded image is sideways or upside down, click these buttons to make it straight.
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
