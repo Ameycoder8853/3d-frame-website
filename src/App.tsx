@@ -156,61 +156,96 @@ export default function App() {
                    </div>
                  }>
                    <SceneHybrid photoDataUrl={photoDataUrl!} config={frameConfig} />
-                 </Suspense>
-
-                 {/* Dynamic Photo Alignment adjustment panel */}
-                  <div className="bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div className="text-left w-full md:w-auto">
-                      <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
-                        <span>📐</span> Straighten & Rotate Photo
-                      </h4>
-                      <p className="text-xs text-zinc-500 mt-1">
-                        If your uploaded image is sideways or upside down, click these buttons to make it straight.
-                      </p>
+                  </Suspense>
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm space-y-5">
+                    {/* Part 1: Rotations & Flips */}
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                      <div className="text-left w-full md:w-auto">
+                        <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                          <span>📐</span> Straighten & Rotate Photo
+                        </h4>
+                        <p className="text-xs text-zinc-500 mt-1">
+                          If your uploaded image is sideways or upside down, click these buttons to make it straight.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFrameConfig(prev => {
+                              if (!prev) return null;
+                              const nextRotation = ((prev.photoRotation ?? 0) + 90) % 360;
+                              addLog('system', `Rotated photo to ${nextRotation}°`);
+                              return { ...prev, photoRotation: nextRotation };
+                            });
+                          }}
+                          className="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all select-none cursor-pointer"
+                        >
+                          🔄 Rotate 90°
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFrameConfig(prev => {
+                              if (!prev) return null;
+                              const nextFlip = !prev.photoFlipV;
+                              addLog('system', `Vertically flipped photo (${nextFlip ? 'active' : 'inactive'})`);
+                              return { ...prev, photoFlipV: nextFlip };
+                            });
+                          }}
+                          className="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all select-none cursor-pointer"
+                        >
+                          ↕️ Flip Vertical
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFrameConfig(prev => {
+                              if (!prev) return null;
+                              const nextFlip = !prev.photoFlipH;
+                              addLog('system', `Horizontally flipped photo (${nextFlip ? 'active' : 'inactive'})`);
+                              return { ...prev, photoFlipH: nextFlip };
+                            });
+                          }}
+                          className="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all select-none cursor-pointer"
+                        >
+                          ↔️ Flip Horizontal
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFrameConfig(prev => {
-                            if (!prev) return null;
-                            const nextRotation = ((prev.photoRotation ?? 0) + 90) % 360;
-                            addLog('system', `Rotated photo to ${nextRotation}°`);
-                            return { ...prev, photoRotation: nextRotation };
-                          });
-                        }}
-                        className="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all select-none cursor-pointer"
-                      >
-                        🔄 Rotate 90°
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFrameConfig(prev => {
-                            if (!prev) return null;
-                            const nextFlip = !prev.photoFlipV;
-                            addLog('system', `Vertically flipped photo (${nextFlip ? 'active' : 'inactive'})`);
-                            return { ...prev, photoFlipV: nextFlip };
-                          });
-                        }}
-                        className="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all select-none cursor-pointer"
-                      >
-                        ↕️ Flip Vertical
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFrameConfig(prev => {
-                            if (!prev) return null;
-                            const nextFlip = !prev.photoFlipH;
-                            addLog('system', `Horizontally flipped photo (${nextFlip ? 'active' : 'inactive'})`);
-                            return { ...prev, photoFlipH: nextFlip };
-                          });
-                        }}
-                        className="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all select-none cursor-pointer"
-                      >
-                        ↔️ Flip Horizontal
-                      </button>
+
+                    {/* Part 2: Dynamic Brightness Slider */}
+                    <div className="pt-4 border-t border-zinc-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                      <div className="text-left w-full md:w-auto">
+                        <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                          <span>☀️</span> Photo Brightness Control
+                        </h4>
+                        <p className="text-xs text-zinc-500 mt-1">
+                          Dynamically adjust your photo's exposure brightness to make it stand out beautifully in the 3D diorama.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 w-full md:w-72">
+                        <span className="text-[10px] text-zinc-400 font-mono">20%</span>
+                        <input
+                          type="range"
+                          min="0.2"
+                          max="2.0"
+                          step="0.05"
+                          value={frameConfig?.photoBrightness ?? 1.0}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            setFrameConfig(prev => {
+                              if (!prev) return null;
+                              return { ...prev, photoBrightness: val };
+                            });
+                          }}
+                          className="w-full h-1.5 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-zinc-900"
+                        />
+                        <span className="text-[10px] text-zinc-400 font-mono">200%</span>
+                        <span className="text-xs font-bold text-zinc-800 font-mono bg-zinc-50 px-2 py-1 rounded border border-zinc-100 min-w-[50px] text-center">
+                          {Math.round((frameConfig?.photoBrightness ?? 1.0) * 100)}%
+                        </span>
+                      </div>
                     </div>
                   </div>
 

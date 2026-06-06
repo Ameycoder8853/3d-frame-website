@@ -63,4 +63,5 @@ export interface FrameConfig {
   photoRotation?: number;
   photoFlipV?: boolean;
   photoFlipH?: boolean;
+  photoBrightness?: number;
 }

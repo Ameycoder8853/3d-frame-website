@@ -300,8 +300,11 @@ export default function Scene2D({ photoDataUrl, config }: Scene2DProps) {
                 <img 
                   src={photoDataUrl} 
                   alt="Diorama center" 
-                  style={{ transform: photoTransform }}
-                  className="w-full h-full object-cover select-none pointer-events-none transition-transform duration-300" 
+                  style={{ 
+                    transform: photoTransform,
+                    filter: `brightness(${config.photoBrightness ?? 1.0})`
+                  }}
+                  className="w-full h-full object-cover select-none pointer-events-none transition-all duration-300" 
                   referrerPolicy="no-referrer"
                 />
               ) : (

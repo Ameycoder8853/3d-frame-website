@@ -878,7 +878,13 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
         <mesh key={photoTexture ? photoTexture.uuid : 'loading'} castShadow receiveShadow position={[0, 0.15, 0.035]}>
           <planeGeometry args={[displayW, displayH]} />
           {photoTexture ? (
-            <meshStandardMaterial map={photoTexture} toneMapped={true} roughness={0.35} side={THREE.DoubleSide} />
+            <meshStandardMaterial 
+              map={photoTexture} 
+              toneMapped={true} 
+              roughness={0.35} 
+              side={THREE.DoubleSide} 
+              color={[config.photoBrightness ?? 1.0, config.photoBrightness ?? 1.0, config.photoBrightness ?? 1.0]} 
+            />
           ) : (
             <meshStandardMaterial color="#faf6f0" roughness={0.5} side={THREE.DoubleSide} />
           )}
