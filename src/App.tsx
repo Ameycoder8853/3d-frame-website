@@ -206,7 +206,7 @@ export default function App() {
 
                     <div className="space-y-2">
                       <div className="text-zinc-500 text-xs">
-                        Includes dynamic hand-assembled parts:
+                        Includes premium bespoke elements:
                       </div>
                       <ul className="text-xs space-y-1.5 text-zinc-700 font-medium">
                         <li className="flex items-center gap-2">✨ Real-time physics orbiting controls</li>

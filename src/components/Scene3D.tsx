@@ -277,51 +277,46 @@ function LuxuryOccasionPlaque({ text, y, displayW }: { text: string; y: number; 
     <group position={[0, y, 0.14]}>
       {/* Real dark wooden beveled backing trim behind brass plaque for stunning tactile layering */}
       <mesh position={[0, 0, -0.012]} castShadow>
-        <boxGeometry args={[plaqueW + 0.14, 0.46, 0.04]} />
+        <boxGeometry args={[plaqueW + 0.14, 0.40, 0.04]} />
         <meshStandardMaterial color="#1a1008" roughness={0.85} />
       </mesh>
 
       {/* Main Solid Polished Brass Engraving Plate with integrated sharp vector text overlay */}
       <mesh position={[0, 0, 0.012]} castShadow receiveShadow>
-        <boxGeometry args={[plaqueW, 0.36, 0.024]} />
+        <boxGeometry args={[plaqueW, 0.32, 0.024]} />
         <meshStandardMaterial map={plaqueTexture} roughness={0.16} metalness={0.88} />
       </mesh>
     </group>
   );
 }
 
-// Highly realistic premium modern-chic black acrylic & gold badge for nicknames / subtext
+// Highly realistic premium gold embossed lettering for nicknames - matches 2D text styling
 function LuxuryNicknamePlaque({ text, y }: { text: string; y: number }) {
   const plaqueW = Math.max(1.8, Math.min(3.2, text.length * 0.12 + 0.6));
 
   const nicknameTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
-    canvas.height = 256;
+    canvas.height = 128; // aspect ratio 8:1
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      // 1. Draw premium sleek gloss-black backdrop
-      ctx.fillStyle = '#0a0a0b';
-      ctx.fillRect(0, 0, 1024, 256);
+      ctx.clearRect(0, 0, 1024, 128);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
-      // 2. Luxe gold-leaf inner coordinate frame border
-      ctx.strokeStyle = '#e6bf5c';
-      ctx.lineWidth = 14;
-      ctx.strokeRect(18, 18, 988, 220);
-
-      // 3. Draw clean sans-serif/slab font
-      ctx.font = 'bold 100px "Inter", "Helvetica", sans-serif';
-      ctx.fillStyle = '#e6bf5c'; // Premium gold leaf look
+      // Elegant sans-serif/Inter font matching 2D perfectly
+      ctx.font = 'bold 84px "Inter", "Helvetica", sans-serif';
+      ctx.fillStyle = '#e6bf5c'; // premium gold leaf look
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      // Drop pop highlight micro-shadows
-      ctx.shadowColor = '#000000';
-      ctx.shadowOffsetX = 4;
-      ctx.shadowOffsetY = 4;
-      ctx.shadowBlur = 6;
+      // Drop pop/highlight raised shadows
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+      ctx.shadowBlur = 4;
 
-      ctx.fillText(text.toUpperCase(), 512, 128);
+      ctx.fillText(text.toUpperCase(), 512, 64);
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -331,19 +326,11 @@ function LuxuryNicknamePlaque({ text, y }: { text: string; y: number }) {
   }, [text]);
 
   return (
-    <group position={[0, y, 0.14]}>
-      {/* Golden outer backing trim plate for double-layered look */}
-      <mesh position={[0, 0, -0.012]} castShadow>
-        <boxGeometry args={[plaqueW + 0.06, 0.38, 0.04]} />
-        <meshStandardMaterial color="#cca43b" roughness={0.12} metalness={0.9} />
-      </mesh>
-
-      {/* Sleek beveled black acrylic badge plate with integrated gold-foil crisp text */}
-      <mesh position={[0, 0, 0.01]} castShadow receiveShadow>
-        <boxGeometry args={[plaqueW, 0.34, 0.024]} />
-        <meshStandardMaterial map={nicknameTexture} roughness={0.08} metalness={0.45} />
-      </mesh>
-    </group>
+    // Positioned at Z = 0.021 to sit perfectly on top of the white mount frame (Z = 0.005)
+    <mesh position={[0, y, 0.021]} castShadow receiveShadow>
+      <planeGeometry args={[plaqueW, 0.28]} />
+      <meshStandardMaterial map={nicknameTexture} transparent={true} roughness={0.15} metalness={0.8} />
+    </mesh>
   );
 }
 
@@ -531,17 +518,17 @@ function Frame3D({ photoDataUrl, config }: { photoDataUrl: string, config: Frame
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
 
-      // Beautiful elegant classic font styling
-      ctx.font = 'bold 44px Georgia, "Playfair Display", serif';
+      // Beautiful elegant classic font styling - larger for excellent readability!
+      ctx.font = 'bold 80px Georgia, "Playfair Display", serif';
       ctx.fillStyle = '#cca43b'; // luxury gold leaf color
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      // Add a subtle gold embossing highlight/indentation shadow
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
-      ctx.shadowOffsetX = -1;
-      ctx.shadowOffsetY = -1;
-      ctx.shadowBlur = 1;
+      // Embossed physical raised drop shadow to pop out on the white plaster card background
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      ctx.shadowBlur = 4;
 
       ctx.fillText(celebrationHeader, 512, 64);
     }
@@ -654,12 +641,12 @@ function Frame3D({ photoDataUrl, config }: { photoDataUrl: string, config: Frame
 
         {/* INTEGRATED OCCASION BRASS PLAQUE MOUNTED DIRECTLY ON THE PHOTO FRAME BOTTOM BORDER */}
         {config.occasion && config.occasion.trim() !== '' && (
-          <LuxuryOccasionPlaque text={config.occasion} y={0.15 - displayH / 2 - 0.22} displayW={displayW} />
+          <LuxuryOccasionPlaque text={config.occasion} y={0.15 - displayH / 2 - 0.24} displayW={displayW} />
         )}
 
         {/* INTEGRATED NICKNAME PLAQUE MOUNTED DIRECTLY ON THE BOTTOM OF THE MAIN PHOTO FRAME */}
         {config.nickname && config.nickname.trim() !== '' && (
-          <LuxuryNicknamePlaque text={config.nickname} y={0.15 - displayH / 2 - 0.54} />
+          <LuxuryNicknamePlaque text={config.nickname} y={0.15 - displayH / 2 - 0.56} />
         )}
       </group>
 
