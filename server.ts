@@ -372,7 +372,7 @@ function generateProceduralFrame(
     roses,
     miniPolaroids,
     compartments,
-    hasLedStrip: true,
+    hasLedStrip: false,
     peripheral,
     layoutStyle,
     quote: quote && quote.trim() !== '' ? quote.trim() : getDefaultQuote(occasion, nickname)
@@ -498,7 +498,7 @@ async function startServer() {
       frameConfig.roses = computedFallback.roses;
       frameConfig.miniPolaroids = computedFallback.miniPolaroids;
       frameConfig.compartments = computedFallback.compartments;
-      frameConfig.hasLedStrip = true;
+      frameConfig.hasLedStrip = false;
 
       // give unique ids to elements
       frameConfig.textElements = frameConfig.textElements.map((t: any, i: number) => ({ ...t, id: `txt-${i}` }));

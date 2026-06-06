@@ -68,7 +68,7 @@ function useSafeTexture(url: string | null) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.flipY = true; // Correctly flip ImageBitmap vertically on GPU upload so it displays right-side up
+        tex.flipY = false; // Set to false to render the ImageBitmap correctly upright
         
         // Skip heavy synchronous CPU-bound mipmap calculations to achieve instant load
         tex.generateMipmaps = false; 
@@ -719,10 +719,7 @@ function Frame3D({ photoDataUrl, config, isMobile, isInitialized }: { photoDataU
         <primitive object={backingMaterial} attach="material" />
       </mesh>
 
-      {/* Fairy Lights looping the inside borders */}
-      {(config.hasLedStrip || config.peripheral === 'led-strip') && (
-        <FairyLightsChain outerW={outerW} outerH={outerH} rimDepth={rimDepth} ledColor={config.ledColor || '#ff9900'} isMobile={isMobile} />
-      )}
+      {/* Hidden ambient fairy lights (removed) */}
 
       {/* 3D Acrylic Standee Base Peripheral holding the frame */}
       {config.peripheral === 'standee' && (

@@ -143,7 +143,6 @@ export default function CreateFrame({ onGenerate, isLoading }: CreateFrameProps)
           >
             <option value="standee">Premium Matte Black Acrylic Standee Base</option>
             <option value="hanging-chain">Vintage Golden Brass Hanger Chain</option>
-            <option value="led-strip">Internal Glow - Fairy LED Light Chain</option>
             <option value="none">Flat Minimalist (Desktop Standing / Floating)</option>
           </select>
         </div>

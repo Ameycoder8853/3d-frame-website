@@ -360,7 +360,7 @@ export function generateProceduralFrame(
     roses,
     miniPolaroids,
     compartments,
-    hasLedStrip: true,
+    hasLedStrip: false,
     peripheral,
     layoutStyle,
     quote: quote && quote.trim() !== '' ? quote.trim() : getDefaultQuote(occasion, nickname)

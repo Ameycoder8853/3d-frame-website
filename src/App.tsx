@@ -225,7 +225,7 @@ export default function App() {
                       <ul className="text-xs space-y-1.5 text-zinc-700 font-medium">
                         <li className="flex items-center gap-2">✨ Real-time physics orbiting controls</li>
                         <li className="flex items-center gap-2">🖼️ High-fidelity floating central photo</li>
-                        <li className="flex items-center gap-2">💡 Sunset ambient fairylights active</li>
+                        <li className="flex items-center gap-2">📐 Precision-aligned straight orientation</li>
                       </ul>
                     </div>
 
